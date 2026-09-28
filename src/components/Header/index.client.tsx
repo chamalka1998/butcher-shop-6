@@ -30,6 +30,10 @@ export function HeaderClient({ header }: Props) {
     setMounted(true)
   }, [])
 
+  if (pathname === '/') {
+    return null
+  }
+
   // Keep initial SSR/CSR markup stable to avoid hydration mismatch.
   const isDark = mounted ? theme !== 'light' : true
 

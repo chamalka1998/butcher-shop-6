@@ -9,6 +9,7 @@ import { placeholderFor } from '@/utilities/placeholderImage'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { FooterWrapper } from './FooterWrapper'
 export async function Footer() {
   const footer: FooterType = await getCachedGlobal('footer', 1)()
   const menu = footer.navItems || []
@@ -16,7 +17,8 @@ export async function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer data-theme="dark" className="border-t border-[#1a1a1a] bg-black text-[#8f8f8f]">
+    <FooterWrapper>
+      <footer data-theme="dark" className="border-t border-[#1a1a1a] bg-black text-[#8f8f8f]">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
           {/* Brand / Description */}
@@ -134,5 +136,6 @@ export async function Footer() {
         </div>
       </div>
     </footer>
+    </FooterWrapper>
   )
 }
