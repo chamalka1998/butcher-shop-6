@@ -47,15 +47,18 @@ export function MobileMenu({ menu }: Props) {
 
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
-      <SheetTrigger className="relative flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white">
-        <MenuIcon className="h-4" />
+      <SheetTrigger className="site-mobile-toggle items-center justify-center border border-[#e6e1d7] bg-transparent px-[11px] py-[9px] text-[0.72rem] font-bold tracking-wider text-[#20251f] hover:bg-[#f6f3ec]">
+        MENU
       </SheetTrigger>
 
-      <SheetContent side="left" className="px-4">
-        <SheetHeader className="px-0 pt-4 pb-0">
-          <SheetTitle>My Store</SheetTitle>
-
-          <SheetDescription />
+      <SheetContent side="left" className="px-6 py-6 font-[family-name:var(--font-dmsans)]">
+        <SheetHeader className="px-0 pt-2 pb-4 text-left border-b border-[#e6e1d7]">
+          <SheetTitle className="font-serif text-xl font-bold text-[#20251f]">
+            The Butcher&apos;s Craft
+          </SheetTitle>
+          <SheetDescription className="text-xs uppercase tracking-widest text-[#73766e]">
+            Artisan Butchery
+          </SheetDescription>
         </SheetHeader>
 
         <div className="py-4">

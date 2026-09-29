@@ -23,116 +23,114 @@ type Props = {
 export function HeaderClient({ header }: Props) {
   const menu = header.navItems || []
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const defaultNav = [
+    { label: 'Home', url: '/' },
+    { label: 'Shop', url: '/shop' },
+    { label: 'Our Craft', url: '/#craft' },
+    { label: 'How It Works', url: '/#delivery' },
+    { label: 'Contact', url: '#footer' },
+  ]
 
-  if (pathname === '/') {
-    return null
-  }
-
-  // Keep initial SSR/CSR markup stable to avoid hydration mismatch.
-  const isDark = mounted ? theme !== 'light' : true
+  const hasCmsNav = menu.length > 0
 
   return (
-    <header className="fixed left-0 top-0 z-50 w-full">
-      <div
-        data-theme="dark"
-        className="border-b border-border/70 bg-background/85 backdrop-blur-sm transition-all duration-300 ease-out"
-      >
-      <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 md:px-8">
-        {/* Mobile menu */}
-        <div className="flex items-center md:hidden">
-          <Suspense fallback={null}>
-            <MobileMenu menu={menu} />
-          </Suspense>
-        </div>
-
-        {/* Left: Logo */}
-        <div className="flex flex-1 items-center">
-          <Link href="/" className="flex items-center">
-
-            {/* <Media
-              resource={
-                header.logo && typeof header.logo === 'object' ? header.logo : undefined
-              }
-              src={
-                !header.logo || typeof header.logo !== 'object'
-                  ? placeholderFor('logo')
-                  : undefined
-              }
-              alt="Home"
-              imgClassName="h-20 w-auto object-contain"
-            /> */}
-
-            <span className="text-md font-black uppercase tracking-wide text-[#d4a63c]">
-              The Butcher’s Craft
-            </span>
-
-          </Link>
-        </div>
-
-        {/* Center: Desktop nav */}
-        <div className="hidden flex-1 justify-center md:flex">
-          {menu.length ? (
-            <ul className="flex items-center gap-8">
-              {menu.map((item) => (
-                <li key={item.id}>
-                  <CMSLink
-                    {...item.link}
-                    appearance="nav"
-                    size="clear"
-                    className={cn(
-                      'relative text-[11px] uppercase tracking-[0.18em] text-foreground/85 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:text-[#d4a63c]',
-                      {
-                        'text-[#d4a63c] after:absolute after:left-0 after:-bottom-2 after:h-[1px] after:w-full after:bg-[#d4a63c]':
-                          item.link?.url === '/'
-                            ? pathname === '/'
-                            : item.link?.url
-                              ? pathname.startsWith(item.link.url)
-                              : false,
-                      },
-                    )}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-
-        {/* Right: icons */}
-        <div className="flex flex-1 items-center justify-end gap-4 text-[#d4a63c] transition-all duration-300 ease-out">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center transition hover:opacity-80"
-            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
-
-          <button
-            type="button"
-            className="hidden md:inline-flex transition hover:opacity-80"
-            aria-label="Search"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-
-          <Suspense fallback={<OpenCartButton />}>
-            <Cart />
-
-          </Suspense>
-
-          <Link href="/account" className="hidden md:inline-flex transition hover:opacity-80">
-            <User className="h-4 w-4" />
-          </Link>
-        </div>
-      </nav>
+    <>
+      {/* ── Topline Notification Bar ── */}
+      <div className="site-topline">
+        SMALL BATCH BUTCHERY <span>•</span> FRESH CUT TO ORDER <span>•</span> DELIVERING ACROSS TORONTO
       </div>
-    </header>
+
+      {/* ── Main Navigation Bar ── */}
+      <div className="site-navwrap">
+        <header className="site-nav">
+          {/* Brand Logo / Title */}
+          <Link className="site-brand" href="/" aria-label="The Butcher's Craft home">
+            {header.logo && typeof header.logo === 'object' && header.logo.url ? (
+              <Media
+                resource={header.logo}
+                alt="The Butcher's Craft"
+                imgClassName="h-10 w-auto object-contain"
+              />
+            ) : (
+              <>
+                <span className="site-brand-mark">✦</span>
+                <span className="site-brand-name">
+                  The Butcher&apos;s Craft
+                  <small>ARTISAN BUTCHERY</small>
+                </span>
+              </>
+            )}
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <nav className="site-navlinks" aria-label="Main navigation">
+            {hasCmsNav
+              ? menu.map((item) => {
+                  const href =
+                    item.link?.type === 'reference' &&
+                    typeof item.link.reference?.value === 'object' &&
+                    item.link.reference.value &&
+                    'slug' in item.link.reference.value
+                      ? `${item.link.reference.relationTo !== 'pages' ? `/${item.link.reference.relationTo}` : ''}/${item.link.reference.value.slug}`
+                      : item.link?.url || '/'
+
+                  const isActive =
+                    href === '/'
+                      ? pathname === '/'
+                      : href && !href.startsWith('#')
+                        ? pathname.startsWith(href)
+                        : false
+
+                  return (
+                    <CMSLink
+                      key={item.id}
+                      {...item.link}
+                      appearance="inline"
+                      className={isActive ? 'active' : ''}
+                    />
+                  )
+                })
+              : defaultNav.map((item) => {
+                  const isActive =
+                    item.url === '/'
+                      ? pathname === '/'
+                      : item.url.startsWith('/') && !item.url.includes('#')
+                        ? pathname.startsWith(item.url)
+                        : false
+
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.url}
+                      className={isActive ? 'active' : ''}
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                })}
+          </nav>
+
+          {/* Right Action Icons & Controls */}
+          <div className="site-navactions">
+            <Link href="/account">Sign in</Link>
+
+            <div className="site-bag" title="Shopping bag">
+              <Suspense fallback={<span className="text-xs">♧</span>}>
+                <Cart />
+              </Suspense>
+            </div>
+
+            <Link className="site-btn-primary" href="/shop">
+              Shop cuts <span>↗</span>
+            </Link>
+
+            <Suspense fallback={null}>
+              <MobileMenu menu={menu} />
+            </Suspense>
+          </div>
+        </header>
+      </div>
+    </>
   )
 }

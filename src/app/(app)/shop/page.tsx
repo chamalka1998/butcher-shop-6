@@ -1,12 +1,13 @@
-import { LuxuryProductCard } from '@/components/Shop/LuxuryProductCard'
+import { ShopProductCard } from '@/components/Shop/ShopProductCard'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import type { Where } from 'payload'
 
 export const metadata = {
-  description: 'Browse premium products in the shop.',
-  title: 'Shop',
+  description:
+    'Explore premium beef, poultry, lamb and butcher\'s selections, freshly prepared to order.',
+  title: 'Shop the Counter | The Butcher\'s Craft',
 }
 
 type SearchParams = { [key: string]: string | string[] | undefined }
@@ -20,6 +21,7 @@ export default async function ShopPage({ searchParams }: Props) {
     q: searchValue,
     sort,
     meatType,
+    meatFilter,
     storageType,
     preparationStyle,
     inStock,
@@ -72,10 +74,23 @@ export default async function ShopPage({ searchParams }: Props) {
       ],
     })
   }
-  if (meatType) {
+
+  // Resolve the meatType filter — the toolbar sets both `meatFilter` (UI) and `meatType` (DB).
+  // Prefer the explicit meatType param; fall back to deriving from meatFilter.
+  const resolvedMeatType = meatType
+    ? String(meatType)
+    : meatFilter && meatFilter !== 'all'
+      ? meatFilter === 'poultry'
+        ? 'chicken'
+        : meatFilter === 'specialty'
+          ? undefined // specialty covers many — no single meatType value
+          : String(meatFilter)
+      : undefined
+
+  if (resolvedMeatType) {
     andConditions.push({
       meatType: {
-        equals: String(meatType),
+        equals: resolvedMeatType,
       },
     })
   }
@@ -103,7 +118,6 @@ export default async function ShopPage({ searchParams }: Props) {
       },
     })
   }
- 
 
   if (category) {
     andConditions.push({
@@ -152,33 +166,42 @@ export default async function ShopPage({ searchParams }: Props) {
     },
   })
 
-  const resultsText =
-    products.docs.length === 1
-      ? shopPage.resultsLabelSingle || 'result'
-      : shopPage.resultsLabelPlural || 'results'
+  const count = products.docs.length
+  const resultsLabel =
+    count === 1
+      ? shopPage.resultsLabelSingle || 'cut'
+      : shopPage.resultsLabelPlural || 'cuts'
 
   return (
-    <div>
-      {searchValue ? (
-        <p className="mb-6 text-sm text-[#b7b7b7]">
-          {products.docs.length === 0 ? 'There are no products that match ' : `Showing ${products.docs.length} ${resultsText} for `}
-          <span className="font-semibold text-white">&quot;{String(searchValue)}&quot;</span>
-        </p>
-      ) : null}
+    <section className="shop-content">
+      {/* Result count */}
+      <p className="shop-result-count" aria-live="polite">
+        {count} {resultsLabel}
+        {searchValue ? (
+          <>
+            {' '}for <strong>&ldquo;{String(searchValue)}&rdquo;</strong>
+          </>
+        ) : null}
+      </p>
 
-      {!searchValue && products.docs.length === 0 ? (
-        <p className="mb-6 text-sm text-[#b7b7b7]">
-          {shopPage.emptyStateText || 'No products found. Please try different filters.'}
-        </p>
-      ) : null}
+      {/* Product grid */}
+      <div className="shop-products-grid">
+        {products.docs.length > 0
+          ? products.docs.map((product) => (
+              <ShopProductCard key={product.id} product={product} />
+            ))
+          : null}
 
-      {products.docs.length > 0 ? (
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          {products.docs.map((product) => {
-            return <LuxuryProductCard key={product.id} product={product} />
-          })}
-        </div>
-      ) : null}
-    </div>
+        {products.docs.length === 0 && (
+          <div className="shop-no-results">
+            <strong>No cuts found</strong>
+            {searchValue
+              ? `No products match "${String(searchValue)}". Try a different search.`
+              : shopPage.emptyStateText ||
+                'No products found. Please try different filters.'}
+          </div>
+        )}
+      </div>
+    </section>
   )
 }

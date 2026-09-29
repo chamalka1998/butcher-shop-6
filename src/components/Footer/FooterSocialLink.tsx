@@ -97,13 +97,13 @@ export function FooterSocialLink({ link, className }: Props) {
     <Link
       href={href}
       className={cn(
-        'flex h-10 w-10 items-center justify-center border border-[#2a2a2a] text-[#bdbdbd] transition-all hover:border-[#d4a63c] hover:text-[#d4a63c]',
+        'site-footer-social-btn',
         className,
       )}
       aria-label={link.label || 'Social profile'}
       {...newTabProps}
     >
-      {kind ? <SocialSvg kind={kind} /> : <Share2 className="h-5 w-5 shrink-0" strokeWidth={1.75} aria-hidden />}
+      {kind ? <SocialSvg kind={kind} /> : <Share2 className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />}
     </Link>
   )
 }

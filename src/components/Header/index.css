@@ -1,29 +1,221 @@
-.navLink {
-  overflow: hidden;
-  border-radius: unset;
+/* Site Header Styles matching template */
+:root {
+  --ink: #20251f;
+  --green: #243b32;
+  --cream: #f6f3ec;
+  --paper: #fffdf8;
+  --rust: #a85238;
+  --muted: #73766e;
+  --line: #e6e1d7;
+  --max: 1200px;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: var(--primary);
-    transition: transform 0.3s;
+.site-topline {
+  background: var(--green);
+  color: #f8f4ea;
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.11em;
+  padding: 9px 16px;
+  font-family: var(--font-dmsans, 'DM Sans', Arial, sans-serif);
+  position: relative;
+  z-index: 50;
+}
+
+.site-topline span {
+  color: #e8bd8d;
+}
+
+.site-navwrap {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  font-family: var(--font-dmsans, 'DM Sans', Arial, sans-serif);
+}
+
+.site-nav {
+  max-width: var(--max);
+  margin: auto;
+  padding: 21px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-brand-mark {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--rust);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--rust);
+  font-size: 21px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.site-brand-name {
+  font-family: var(--font-playfair, 'Playfair Display', Georgia, serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+.site-brand-name small {
+  display: block;
+  font-family: var(--font-dmsans, 'DM Sans', Arial, sans-serif);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.site-navlinks {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.site-navlinks a {
+  transition: color 0.2s;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-navlinks a:hover,
+.site-navlinks a.active {
+  color: var(--rust);
+}
+
+.site-navactions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 0.85rem;
+}
+
+.site-navactions a {
+  transition: color 0.2s;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-navactions a:hover {
+  color: var(--rust);
+}
+
+.site-bag {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+  color: var(--ink);
+}
+
+.site-bag:hover {
+  background: var(--cream);
+  border-color: #c9c3b8;
+}
+
+.site-bag button {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: var(--ink) !important;
+  cursor: pointer !important;
+}
+
+.site-btn-primary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background: var(--rust);
+  color: white !important;
+  padding: 14px 21px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 1px solid var(--rust);
+  transition: 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.site-btn-primary:hover {
+  background: #87432f;
+  border-color: #87432f;
+  transform: translateY(-1px);
+}
+
+.site-mobile-toggle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    padding: 16px 20px;
   }
-
-  &:not(.active) {
-    &:hover {
-      &::after {
-        transform: translateY(-2px);
-      }
-    }
+  .site-navlinks {
+    gap: 15px;
   }
+  .site-navactions .site-btn-primary {
+    display: none;
+  }
+}
 
-  &.active {
-    &::after {
-      transform: translateY(-2px);
-    }
+@media (max-width: 680px) {
+  .site-topline {
+    font-size: 0.64rem;
+  }
+  .site-nav {
+    padding: 14px 18px;
+  }
+  .site-navlinks {
+    display: none;
+  }
+  .site-brand {
+    min-width: 0;
+  }
+  .site-brand-name {
+    font-size: 1rem;
+  }
+  .site-navactions {
+    gap: 10px;
+  }
+  .site-navactions .site-btn-primary {
+    display: none;
+  }
+  .site-mobile-toggle {
+    display: inline-flex;
   }
 }

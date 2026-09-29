@@ -1,54 +1,62 @@
-// src/components/Footer/index.tsx
-
 import { FooterMenu } from '@/components/Footer/menu'
 import { FooterSocialLink } from '@/components/Footer/FooterSocialLink'
 import type { Footer as FooterType } from '@/payload-types'
-// import { LogoIcon } from '@/components/icons/logo'
 import { Media } from '@/components/Media'
-import { placeholderFor } from '@/utilities/placeholderImage'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { FooterWrapper } from './FooterWrapper'
+import './index.css'
+
 export async function Footer() {
-  const footer: FooterType = await getCachedGlobal('footer', 1)()
-  const menu = footer.navItems || []
-  const socialLinks = footer.socialLinks || []
+  let footer: FooterType | null = null
+
+  try {
+    footer = await getCachedGlobal('footer', 1)()
+  } catch {
+    // fallback gracefully
+  }
+
+  const menu = footer?.navItems || []
+  const socialLinks = footer?.socialLinks || []
   const currentYear = new Date().getFullYear()
+
+  const brandDescription =
+    footer?.description ||
+    'Fresh, high-quality cuts prepared with care and delivered to your door.'
+  const contactEmail = footer?.contactEmail || 'orders@butcherscraft.com'
+  const contactAddress =
+    footer?.address || '123 Queen Street West\nToronto, ON M5H 2N2'
+  const locationText =
+    footer?.bottomBar?.locationText || 'Delivering across Toronto & suburbs'
 
   return (
     <FooterWrapper>
-      <footer data-theme="dark" className="border-t border-[#1a1a1a] bg-black text-[#8f8f8f]">
-      <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
-          {/* Brand / Description */}
-          <div className="max-w-md">
-            <Link
-              href="/"
-              className="mb-6 flex items-center gap-3 text-[#d4a63c] transition-opacity hover:opacity-80"
-            >
-              <Media
-                resource={
-                  footer.logo && typeof footer.logo === 'object' ? footer.logo : undefined
-                }
-                src={
-                  !footer.logo || typeof footer.logo !== 'object'
-                    ? placeholderFor('logo')
-                    : undefined
-                }
-                alt={footer.brandName || 'The Butcher’s Craft'}
-                imgClassName="h-16 w-auto object-contain"
-              />
+      <footer className="site-footer" id="footer">
+        <div className="site-footer-inner">
+          {/* Brand Info */}
+          <div>
+            <Link className="site-brand" href="/">
+              {footer?.logo && typeof footer.logo === 'object' && footer.logo.url ? (
+                <Media
+                  resource={footer.logo}
+                  alt={footer.brandName || "The Butcher's Craft"}
+                  imgClassName="h-10 w-auto object-contain"
+                />
+              ) : (
+                <>
+                  <span className="site-brand-mark">✦</span>
+                  <span className="site-brand-name">
+                    {footer?.brandName || "The Butcher's Craft"}
+                    <small>ARTISAN BUTCHERY</small>
+                  </span>
+                </>
+              )}
             </Link>
+            <p>{brandDescription}</p>
 
-            {footer.description && (
-              <p className="mb-8 text-sm leading-7 text-[#9b9b9b]">
-                {footer.description}
-              </p>
-            )}
-
-            {(socialLinks?.length ?? 0) > 0 && (
-              <div className="flex items-center gap-3">
+            {socialLinks.length > 0 && (
+              <div className="site-footer-socials">
                 {socialLinks.map(({ id, link }) => (
                   <FooterSocialLink key={id} link={link} />
                 ))}
@@ -56,86 +64,66 @@ export async function Footer() {
             )}
           </div>
 
-          {/* Explore */}
-          <div>
-            <h3 className="mb-6 text-xs uppercase tracking-[0.28em] text-[#d4a63c]">
-              Explore
-            </h3>
-
-            <Suspense fallback={null}>
-              <FooterMenu menu={menu} />
-            </Suspense>
+          {/* Explore column */}
+          <div className="site-footer-col">
+            <h4>Explore</h4>
+            {menu.length > 0 ? (
+              <Suspense fallback={null}>
+                <FooterMenu menu={menu} />
+              </Suspense>
+            ) : (
+              <>
+                <Link href="/shop">Shop all cuts</Link>
+                <Link href="/about-us">Our story</Link>
+                <Link href="/how-it-works">Delivery &amp; pickup</Link>
+              </>
+            )}
           </div>
 
-          {/* Concierge / Contact */}
-          <div>
-            <h3 className="mb-6 text-xs uppercase tracking-[0.28em] text-[#d4a63c]">
-              Concierge
-            </h3>
+          {/* Need a hand? column */}
+          <div className="site-footer-col">
+            <h4>Need a hand?</h4>
+            <a href={`mailto:${contactEmail}`}>Contact us</a>
+            {footer?.contactPhone && (
+              <a href={`tel:${footer.contactPhone}`}>{footer.contactPhone}</a>
+            )}
+            <Link href="/contact-us">FAQs</Link>
+            <Link href="/account">My account</Link>
+          </div>
 
-            <div className="flex flex-col gap-3">
-              {footer.contactEmail && (
-                <a
-                  href={`mailto:${footer.contactEmail}`}
-                  className="text-xs uppercase tracking-[0.22em] text-[#8f8f8f] transition-colors hover:text-[#d4a63c]"
-                >
-                  {footer.contactEmail}
-                </a>
-              )}
-
-              {footer.contactPhone && (
-                <a
-                  href={`tel:${footer.contactPhone}`}
-                  className="text-xs uppercase tracking-[0.22em] text-[#8f8f8f] transition-colors hover:text-[#d4a63c]"
-                >
-                  {footer.contactPhone}
-                </a>
-              )}
-
-              {footer.address && (
-                <p className="whitespace-pre-line text-xs uppercase tracking-[0.18em] leading-6 text-[#8f8f8f]">
-                  {footer.address}
-                </p>
-              )}
-
-              {footer.bottomBar?.locationText && (
-                <p className="text-xs uppercase tracking-[0.22em] text-[#8f8f8f]">
-                  {footer.bottomBar.locationText}
-                </p>
-              )}
-            </div>
+          {/* Visit column */}
+          <div className="site-footer-col">
+            <h4>Visit</h4>
+            <p style={{ whiteSpace: 'pre-line' }}>{contactAddress}</p>
+            <p>{locationText}</p>
           </div>
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-[#1a1a1a]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-6 text-[10px] uppercase tracking-[0.26em] text-[#5f5f5f] md:flex-row md:items-center md:justify-between md:px-10 lg:px-12">
-          <p>
-            © {currentYear} {footer.brandName || 'Filet Gourmet Atelier'}. All rights reserved.
-          </p>
-
-          {footer.bottomBar?.legalText && <p>{footer.bottomBar.legalText}</p>}
-
-          {footer.bottomBar?.creditLabel && (
-            <p>
-              {footer.bottomBar.creditUrl ? (
+        {/* Bottom bar */}
+        <div className="site-footer-bottom">
+          <span>
+            {footer?.bottomBar?.legalText ||
+              `© ${currentYear} ${footer?.brandName || "The Butcher's Craft"}. All rights reserved.`}
+          </span>
+          <span>
+            {footer?.bottomBar?.creditLabel ? (
+              footer.bottomBar.creditUrl ? (
                 <a
                   href={footer.bottomBar.creditUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-[#d4a63c]"
                 >
                   {footer.bottomBar.creditLabel}
                 </a>
               ) : (
-                <span>{footer.bottomBar.creditLabel}</span>
-              )}
-            </p>
-          )}
+                footer.bottomBar.creditLabel
+              )
+            ) : (
+              'Freshly prepared. Thoughtfully delivered.'
+            )}
+          </span>
         </div>
-      </div>
-    </footer>
+      </footer>
     </FooterWrapper>
   )
 }
