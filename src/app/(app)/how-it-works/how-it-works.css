@@ -1,0 +1,402 @@
+.how-it-works-page {
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--sans);
+}
+
+.how-it-works-page .how-hero {
+  max-width: var(--max);
+  margin: auto;
+  padding: 46px 28px 70px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 55px;
+  align-items: center;
+}
+
+.how-hero-copy,
+.how-hero-image {
+  animation: how-enter 650ms ease-out both;
+}
+
+.how-hero-image {
+  animation-delay: 100ms;
+}
+
+.how-hero h1 {
+  max-width: 570px;
+  margin: 15px 0 20px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(3rem, 5.4vw, 5rem);
+  font-weight: 600;
+  line-height: 1.03;
+}
+
+.how-hero p {
+  max-width: 480px;
+  margin: 0 0 25px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.how-hero-image {
+  height: 465px;
+  position: relative;
+  background: #ddd;
+}
+
+.how-hero-image img,
+.how-step-image img,
+.how-values-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.how-photo-label {
+  position: absolute;
+  right: -14px;
+  bottom: 18px;
+  padding: 12px 16px;
+  color: var(--green);
+  background: var(--paper);
+  box-shadow: 0 8px 22px rgb(32 37 31 / 9%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.how-section-heading {
+  max-width: 680px;
+  margin: 0 auto 35px;
+  text-align: center;
+}
+
+.how-section-heading p {
+  max-width: 540px;
+  margin: 12px auto 0;
+  color: var(--muted);
+}
+
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.how-step {
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.how-step-image {
+  height: 240px;
+  overflow: hidden;
+  background: #e5dfd3;
+}
+
+.how-step-image img {
+  transition: transform 500ms ease-out;
+}
+
+.how-step:hover .how-step-image img {
+  transform: scale(1.04);
+}
+
+.how-step-body {
+  padding: 22px 23px 24px;
+}
+
+.how-step-number {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-top: -43px;
+  position: relative;
+  color: white;
+  background: var(--green);
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.how-step h3,
+.how-value h3 {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 600;
+}
+
+.how-step h3 {
+  margin: 16px 0 8px;
+  font-size: 1.45rem;
+}
+
+.how-step-body p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.how-text-link {
+  color: var(--rust);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.how-values {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 62px;
+  align-items: center;
+}
+
+.how-values-image {
+  height: 560px;
+}
+
+.how-values-copy > p {
+  max-width: 500px;
+  color: var(--muted);
+}
+
+.how-value-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+  margin-top: 23px;
+}
+
+.how-value {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.how-value h3 {
+  margin: 0 0 5px;
+  font-size: 1.12rem;
+}
+
+.how-value p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.79rem;
+}
+
+.how-faq {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.how-faq h2 {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 9px 0 0;
+}
+
+.how-faq-list {
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.how-faq-list details {
+  padding: 0 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.how-faq-list summary {
+  position: relative;
+  padding: 19px 38px 19px 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+.how-faq-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.how-faq-list summary::after {
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  color: var(--rust);
+  content: '+';
+  font-family: var(--sans);
+  font-size: 1.4rem;
+  font-weight: 400;
+  transform: translateY(-50%);
+}
+
+.how-faq-list details[open] summary::after {
+  content: '−';
+}
+
+.how-faq-list details p {
+  max-width: 720px;
+  margin: -3px 0 20px;
+  color: var(--muted);
+  font-size: 0.87rem;
+  line-height: 1.7;
+}
+
+.how-cta {
+  padding: 66px 28px;
+  color: white;
+  background: var(--green);
+}
+
+.how-cta-inner {
+  max-width: var(--max);
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+}
+
+.how-cta h2 {
+  max-width: 650px;
+  margin: 0;
+  color: #fbf8f0;
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.how-cta p {
+  margin: 10px 0 0;
+  color: #d5ddd5;
+}
+
+.how-cta .button {
+  flex-shrink: 0;
+  color: var(--green) !important;
+  background: #f2e8d6;
+  border-color: #f2e8d6;
+  white-space: nowrap;
+}
+
+@keyframes how-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .how-hero-copy,
+  .how-hero-image {
+    animation: none;
+  }
+
+  .how-step-image img {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .how-it-works-page .how-hero {
+    gap: 30px;
+  }
+
+  .how-hero-image {
+    height: 400px;
+  }
+
+  .how-values {
+    gap: 32px;
+  }
+
+  .how-values-image {
+    height: 470px;
+  }
+}
+
+@media (max-width: 680px) {
+  .how-it-works-page .how-hero {
+    grid-template-columns: 1fr;
+    gap: 26px;
+    padding: 30px 18px 50px;
+  }
+
+  .how-hero h1 {
+    font-size: 3.2rem;
+  }
+
+  .how-hero-image {
+    height: 340px;
+    margin-right: 10px;
+  }
+
+  .how-photo-label {
+    right: -10px;
+  }
+
+  .how-it-works-page .section {
+    padding: 55px 18px;
+  }
+
+  .how-steps,
+  .how-values,
+  .how-value-list {
+    grid-template-columns: 1fr;
+  }
+
+  .how-steps {
+    gap: 15px;
+  }
+
+  .how-step-image {
+    height: 250px;
+  }
+
+  .how-values {
+    gap: 25px;
+  }
+
+  .how-values-image {
+    height: 340px;
+  }
+
+  .how-value-list {
+    gap: 14px;
+  }
+
+  .how-cta {
+    padding: 52px 18px;
+  }
+
+  .how-cta-inner {
+    display: block;
+  }
+
+  .how-cta .button {
+    display: inline-flex;
+    margin-top: 22px;
+  }
+
+  .how-faq-list summary {
+    font-size: 1rem;
+  }
+}

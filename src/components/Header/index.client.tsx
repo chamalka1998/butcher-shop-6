@@ -28,7 +28,7 @@ export function HeaderClient({ header }: Props) {
     { label: 'Home', url: '/' },
     { label: 'Shop', url: '/shop' },
     { label: 'Our Craft', url: '/#craft' },
-    { label: 'How It Works', url: '/#delivery' },
+    { label: 'How It Works', url: '/how-it-works' },
     { label: 'Contact', url: '#footer' },
   ]
 
