@@ -4,12 +4,13 @@ import { Price } from '@/components/Price'
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
-import { ShoppingCart } from 'lucide-react'
+import { ArrowRight, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -22,6 +23,7 @@ import { CartTimerModal } from './CartTimerModal'
 import { DeleteItemButton } from './DeleteItemButton'
 import { EditItemQuantityButton } from './EditItemQuantityButton'
 import { OpenCartButton } from './OpenCart'
+import './cart-modal.css'
 
 export function CartModal() {
   const { cart, clearCart } = useCart()
@@ -182,31 +184,41 @@ export function CartModal() {
 
       <SheetContent
         side="right"
-        className="w-full max-w-[410px] border-border bg-card p-0 text-foreground"
+        className="cart-sheet"
       >
-        <div className="flex h-full flex-col">
-          <SheetHeader className="border-b border-border px-7 py-8 text-left">
-            <div className="flex items-start justify-between">
-              <div>
-                <SheetTitle className="text-left text-[2.1rem] font-black uppercase tracking-[-0.02em] text-[#d4a63c]">
-                  Cart
-                </SheetTitle>
-              </div>
+        <div className="cart-drawer">
+          <SheetHeader className="cart-head">
+            <div className="cart-head-copy">
+              <span className="cart-eyebrow">Your order</span>
+              <SheetTitle className="cart-title">Cart</SheetTitle>
+              <SheetDescription className="sr-only">
+                Review your selected cuts, update quantities, and continue to checkout.
+              </SheetDescription>
+              <p className="cart-count">
+                {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+              </p>
             </div>
           </SheetHeader>
 
           {!cart || cart?.items?.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
-              <ShoppingCart className="h-14 w-14 text-[#d4a63c]" />
-              <p className="text-xl font-bold uppercase tracking-wide text-foreground">
-                Your cart is empty
-              </p>
-              <p className="text-sm text-muted-foreground">Add Items to view in Cart</p>
+            <div className="cart-empty">
+              <div className="cart-empty-icon">
+                <ShoppingCart aria-hidden="true" size={32} strokeWidth={1.5} />
+              </div>
+              <h2>Your cart is empty</h2>
+              <p>Add cuts from the shop to view them here.</p>
+              <Link
+                className="cart-browse-link"
+                href="/shop"
+                onClick={() => setIsOpen(false)}
+              >
+                Browse the shop <ArrowRight aria-hidden="true" size={16} />
+              </Link>
             </div>
           ) : (
             <>
-              <div className="flex-1 overflow-y-auto px-6 py-4">
-                <ul className="space-y-6">
+              <div className="cart-items">
+                <ul className="cart-items-list">
                   {cart?.items?.map((item, i) => {
                     const product = item.product
                     const variant = item.variant
@@ -279,15 +291,15 @@ export function CartModal() {
                     const thumbSrc = mediaUrlOrPlaceholder(image?.url, 'cart')
 
                     return (
-                      <li key={i} className="flex items-start gap-4">
+                      <li key={i} className="cart-item">
                         <Link
                           href={`/products/${(item.product as Product)?.slug}`}
-                          className="block shrink-0"
+                          className="cart-item-image"
                         >
-                          <div className="relative h-[104px] w-[104px] overflow-hidden border border-border bg-muted">
+                          <div className="cart-item-image-frame">
                             <Image
                               alt={image?.alt || product?.title || ''}
-                              className="h-full w-full object-cover"
+                              className="object-cover"
                               height={120}
                               src={thumbSrc}
                               width={120}
@@ -296,25 +308,23 @@ export function CartModal() {
                           </div>
                         </Link>
 
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
+                        <div className="cart-item-content">
+                          <div className="cart-item-heading">
+                            <div className="cart-item-copy">
                               <Link
                                 href={`/products/${(item.product as Product)?.slug}`}
-                                className="block"
+                                className="cart-item-title-link"
                               >
-                                <h3 className="line-clamp-2 text-[1.05rem] font-extrabold uppercase leading-tight tracking-[0.02em] text-foreground">
+                                <h3 className="cart-item-title">
                                   {product?.title}
                                 </h3>
                               </Link>
 
-                              {(variantText || item.quantity) && (
-                                <p className="mt-2 text-[0.78rem] uppercase tracking-[0.08em] text-muted-foreground">
-                                  {variantText ? `Weight: ${variantText}` : ''}
-                                </p>
+                              {variantText && (
+                                <p className="cart-item-variant">{variantText}</p>
                               )}
 
-                              <p className="mt-1 text-[0.72rem] uppercase tracking-[0.1em] text-[#d4a63c]">
+                              <p className="cart-item-purchase-type">
                                 {getPurchaseTypeLabel(purchaseType)}
                               </p>
                             </div>
@@ -322,29 +332,29 @@ export function CartModal() {
                             <DeleteItemButton item={item} />
                           </div>
 
-                          <div className="mt-5 flex items-end justify-between gap-3">
-                            <div className="flex h-8 items-center border border-border bg-muted/40">
+                          <div className="cart-item-bottom">
+                            <div className="cart-quantity-control">
                               <EditItemQuantityButton
                                 item={item}
                                 type="minus"
-                                className="h-8 w-8 border-r border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                                className="cart-quantity-button"
                               />
 
-                              <span className="flex h-8 w-9 items-center justify-center text-sm font-medium text-foreground">
+                              <span className="cart-quantity-value">
                                 {item.quantity}
                               </span>
 
                               <EditItemQuantityButton
                                 item={item}
                                 type="plus"
-                                className="h-8 w-8 border-l border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                                className="cart-quantity-button"
                               />
                             </div>
 
                             {typeof price === 'number' && (
                               <Price
                                 amount={price * (item.quantity || 1)}
-                                className="text-right text-[1.05rem] font-bold text-[#d4a63c]"
+                                className="cart-item-price"
                               />
                             )}
                           </div>
@@ -355,38 +365,29 @@ export function CartModal() {
                 </ul>
               </div>
 
-              <div className="border-t border-[#6f5620]/40 bg-zinc-950 px-7 py-6 text-zinc-100">
-                <div className="space-y-3 text-sm uppercase tracking-[0.14em]">
-                  <div className="flex items-center justify-between text-zinc-400">
-                    <span>Subtotal</span>
-                    {typeof cart?.subtotal === 'number' && (
-                      <Price amount={adjustedSubtotal} className="text-base text-zinc-300" />
-                    )}
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between border-t border-zinc-800 pt-4">
-                    <span className="text-lg font-extrabold tracking-[0.14em] text-zinc-100">
-                      Total
-                    </span>
-                    {typeof cart?.subtotal === 'number' && (
-                      <Price
-                        amount={adjustedSubtotal}
-                        className="text-3xl font-black text-[#d4a63c]"
-                      />
-                    )}
-                  </div>
+              <div className="cart-foot">
+                <div className="cart-subtotal">
+                  <span>Subtotal</span>
+                  <Price amount={adjustedSubtotal} className="cart-subtotal-price" />
                 </div>
+                <p className="cart-shipping-note">
+                  Shipping and taxes calculated at checkout.
+                </p>
 
-                <div className="mt-7 space-y-5">
+                <div className="cart-footer-actions">
                   <Link
                     href="/checkout"
-                    className="flex h-14 w-full items-center justify-center rounded-none border border-[#c8a24d] bg-[#c8a24d] px-5 py-6 text-center text-[11px] font-extrabold uppercase tracking-[0.28em] text-black transition-all duration-300 ease-out hover:bg-transparent hover:text-[#c8a24d] hover:scale-[1.03] active:scale-[0.97]"
-
+                    className="cart-checkout-link"
                   >
-                    Proceed to Checkout
+                    Continue to checkout <ArrowRight aria-hidden="true" size={16} />
                   </Link>
-
-                  <div className="flex items-center justify-center gap-10 border-t border-zinc-800 pt-5 text-[11px] uppercase tracking-[0.14em] text-zinc-500" />
+                  <button
+                    className="cart-continue-button"
+                    onClick={() => setIsOpen(false)}
+                    type="button"
+                  >
+                    Continue shopping
+                  </button>
                 </div>
               </div>
             </>

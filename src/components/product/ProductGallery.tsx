@@ -21,50 +21,50 @@ export default function ProductGallery({ product }: Props) {
   const mainSrc = mediaUrlOrPlaceholder(mainImage?.url, 'gallery')
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4">
-      <div className="relative aspect-[4/3] w-full max-h-[420px] overflow-hidden border border-white/10 bg-[#111] md:max-h-[480px]">
+    <div className="product-gallery">
+      {gallery.length > 1 && (
+        <div className="product-thumbnails" aria-label="Product images">
+          {gallery.map((image, index) => {
+            const thumbSrc = mediaUrlOrPlaceholder(image.url, 'gallery')
+
+            return (
+              <button
+                key={image.id || index}
+                type="button"
+                className={`product-thumbnail${activeIndex === index ? ' active' : ''}`}
+                onClick={() => setActiveIndex(index)}
+                aria-label={`Show product image ${index + 1}`}
+                aria-pressed={activeIndex === index}
+              >
+                <Image
+                  src={thumbSrc}
+                  alt={image.alt || `${product.title} image ${index + 1}`}
+                  fill
+                  sizes="76px"
+                  unoptimized={shouldBypassNextImageOptimizer(thumbSrc)}
+                  className="object-cover"
+                />
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      <div className="product-main-image">
         <Image
           src={mainSrc}
-          alt={mainImage?.alt || 'Product image'}
+          alt={mainImage?.alt || product.title}
           fill
-          sizes="(max-width: 1024px) 100vw, 58vw"
+          sizes="(max-width: 850px) 100vw, 54vw"
           priority
           unoptimized={shouldBypassNextImageOptimizer(mainSrc)}
           className="object-cover"
         />
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        {thumbSlots.map((slotIndex) => {
-          const img = gallery[slotIndex]
-          const isActive = activeIndex === slotIndex
-
-          const thumbSrc = mediaUrlOrPlaceholder(img?.url, 'gallery')
-
-          return (
-            <button
-              key={slotIndex}
-              type="button"
-              disabled={!img}
-              onClick={() => img && setActiveIndex(slotIndex)}
-              className={[
-                'relative aspect-square w-full overflow-hidden border bg-[#111] transition',
-                img ? 'cursor-pointer hover:opacity-95' : 'cursor-default',
-                isActive ? 'border-[#d4af5f]/80 ring-1 ring-[#d4af5f]/40' : 'border-white/10',
-              ].join(' ')}
-              aria-label={img ? `View image ${slotIndex + 1}` : 'Empty gallery slot'}
-            >
-              <Image
-                src={thumbSrc}
-                alt={img?.alt || `Product image ${slotIndex + 1}`}
-                fill
-                sizes="(max-width: 1024px) 33vw, 20vw"
-                unoptimized={shouldBypassNextImageOptimizer(thumbSrc)}
-                className="object-cover"
-              />
-            </button>
-          )
-        })}
+        {(product.shopCardLabel || product.badges?.[0]?.label) && (
+          <span className="product-image-badge">
+            {product.shopCardLabel || product.badges?.[0]?.label}
+          </span>
+        )}
       </div>
     </div>
   )

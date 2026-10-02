@@ -3,11 +3,11 @@
 import { Button } from '@/components/ui/button'
 import type { Product, Variant } from '@/payload-types'
 
+import { getPurchaseUnitPriceInCents } from '@/utilities/purchasePricing'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 import { useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { getPurchaseUnitPriceInCents } from '@/utilities/purchasePricing'
 
 type PurchaseType = 'one_time' | 'weekly' | 'monthly'
 
@@ -15,6 +15,7 @@ type Props = {
   product: Product
   className?: string
   purchaseType?: PurchaseType
+  quantity?: number
 }
 
 type BranchStock = {
@@ -22,11 +23,7 @@ type BranchStock = {
   stockStatus: string
 }
 
-export function AddToCart({
-  product,
-  className,
-  purchaseType = 'one_time',
-}: Props) {
+export function AddToCart({ product, className, purchaseType = 'one_time', quantity = 1 }: Props) {
   const { addItem, cart, isLoading } = useCart()
   const searchParams = useSearchParams()
 
@@ -123,21 +120,19 @@ export function AddToCart({
       //   return
       // }
 
-      const selectedPrice = getPurchaseUnitPriceInCents(
-        product,
-        selectedVariant,
-        purchaseType,
-      )
+      const selectedPrice = getPurchaseUnitPriceInCents(product, selectedVariant, purchaseType)
 
       localStorage.setItem(cartItemKey, purchaseType)
       localStorage.setItem(`${cartItemKey}:price`, String(selectedPrice))
 
-
-      addItem({
-        product: product.id,
-        variant: selectedVariant?.id ?? undefined,
-        price: selectedPrice,
-      } as unknown as Parameters<typeof addItem>[0]).then(() => {
+      addItem(
+        {
+          product: product.id,
+          variant: selectedVariant?.id ?? undefined,
+          price: selectedPrice,
+        } as unknown as Parameters<typeof addItem>[0],
+        quantity,
+      ).then(() => {
         toast.success(
           purchaseType === 'one_time'
             ? 'Item added to cart.'
@@ -153,11 +148,11 @@ export function AddToCart({
       branchStock.stockStatus,
       purchaseType,
       cartItemKey,
+      quantity,
     ],
   )
 
   const disabled = useMemo<boolean>(() => {
-
     // if (product.enableVariants && !selectedVariant) {
     //   console.log("1");
     //   return true
@@ -179,7 +174,7 @@ export function AddToCart({
 
       if (productID === product.id) {
         if (product.enableVariants) {
-          console.log("3");
+          console.log('3')
           return variantID === selectedVariant?.id
         }
 
@@ -190,7 +185,7 @@ export function AddToCart({
     })
 
     if (existingItem) {
-      console.log("4");
+      console.log('4')
       return existingItem.quantity >= branchStock.stockQuantity
     }
 
@@ -208,8 +203,10 @@ export function AddToCart({
     <Button
       aria-label="Add to cart"
       variant="outline"
-      // className={className}
-      className="w-full rounded-none border border-[#c8a24d] bg-[#c8a24d] px-5 py-6 text-center text-[11px] font-extrabold uppercase tracking-[0.28em] text-black transition-all duration-300 ease-out hover:bg-transparent hover:text-[#c8a24d] hover:scale-[1.03] active:scale-[0.97]"
+      className={
+        className ||
+        'w-full rounded-none border border-[#c8a24d] bg-[#c8a24d] px-5 py-6 text-center text-[11px] font-extrabold uppercase tracking-[0.28em] text-black transition-all duration-300 ease-out hover:bg-transparent hover:text-[#c8a24d] hover:scale-[1.03] active:scale-[0.97]'
+      }
       disabled={disabled || isLoading}
       onClick={addToCart}
       type="submit"
