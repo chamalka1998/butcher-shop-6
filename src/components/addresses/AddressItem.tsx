@@ -18,6 +18,7 @@ type Props = {
    * Insert elements after the actions
    */
   afterActions?: React.ReactNode
+  accountStyle?: boolean
   /**
    * Hide all actions
    */
@@ -30,14 +31,15 @@ export const AddressItem: React.FC<Props> = ({
   hideActions = false,
   beforeActions,
   afterActions,
+  accountStyle = false,
 }) => {
   if (!address) {
     return null
   }
 
   return (
-    <div className="flex items-center">
-      <div className="grow">
+    <div className={accountStyle ? 'account-address-item' : 'flex items-center'}>
+      <div className={accountStyle ? 'account-address-details' : 'grow'}>
         <p className="font-medium">
           {address.title && <span>{address.title} </span>}
           {address.firstName} {address.lastName}
@@ -55,7 +57,7 @@ export const AddressItem: React.FC<Props> = ({
       </div>
 
       {!hideActions && address.id && (
-        <div className="shrink flex flex-col gap-2">
+        <div className={accountStyle ? 'account-address-actions' : 'shrink flex flex-col gap-2'}>
           {actions ? (
             actions
           ) : (
@@ -67,6 +69,7 @@ export const AddressItem: React.FC<Props> = ({
                   initialData={address}
                   buttonText={'Edit'}
                   modalTitle={'Edit address'}
+                  accountStyle={accountStyle}
                 />
               )}
               {afterActions}

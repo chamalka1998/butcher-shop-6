@@ -40,7 +40,7 @@ export const AccountForm: React.FC = () => {
   const onSubmit = useCallback(
     async (data: FormData) => {
       if (user) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${user.id}`, {
+        const response = await fetch(`/api/users/${user.id}`, {
           // Make sure to include cookies with fetch
           body: JSON.stringify(data),
           credentials: 'include',
@@ -90,14 +90,14 @@ export const AccountForm: React.FC = () => {
   }, [user, router, reset, changePassword])
 
   return (
-    <form className="max-w-xl" onSubmit={handleSubmit(onSubmit)}>
+    <form className="account-settings-form" onSubmit={handleSubmit(onSubmit)}>
       {!changePassword ? (
         <Fragment>
-          <div className="prose dark:prose-invert mb-8">
-            <p className="">
+          <div className="account-form-intro">
+            <p>
               {'Change your account details below, or '}
               <Button
-                className="px-0 text-inherit underline hover:cursor-pointer"
+                className="account-password-toggle h-auto px-0"
                 onClick={() => setChangePassword(!changePassword)}
                 type="button"
                 variant="link"
@@ -108,27 +108,29 @@ export const AccountForm: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-8 mb-8">
-            <FormItem>
-              <Label htmlFor="email" className="mb-2">
+          <div className="account-form-fields">
+            <FormItem className="account-form-field">
+              <Label htmlFor="email">
                 Email Address
               </Label>
               <Input
                 id="email"
                 {...register('email', { required: 'Please provide an email.' })}
                 type="email"
+                className="account-input"
               />
               {errors.email && <FormError message={errors.email.message} />}
             </FormItem>
 
-            <FormItem>
-              <Label htmlFor="name" className="mb-2">
+            <FormItem className="account-form-field">
+              <Label htmlFor="name">
                 Name
               </Label>
               <Input
                 id="name"
                 {...register('name', { required: 'Please provide a name.' })}
                 type="text"
+                className="account-input"
               />
               {errors.name && <FormError message={errors.name.message} />}
             </FormItem>
@@ -136,11 +138,11 @@ export const AccountForm: React.FC = () => {
         </Fragment>
       ) : (
         <Fragment>
-          <div className="prose dark:prose-invert mb-8">
+          <div className="account-form-intro">
             <p>
               {'Change your password below, or '}
               <Button
-                className="px-0 text-inherit underline hover:cursor-pointer"
+                className="account-password-toggle h-auto px-0"
                 onClick={() => setChangePassword(!changePassword)}
                 type="button"
                 variant="link"
@@ -151,21 +153,22 @@ export const AccountForm: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-8 mb-8">
-            <FormItem>
-              <Label htmlFor="password" className="mb-2">
+          <div className="account-form-fields">
+            <FormItem className="account-form-field">
+              <Label htmlFor="password">
                 New password
               </Label>
               <Input
                 id="password"
                 {...register('password', { required: 'Please provide a new password.' })}
                 type="password"
+                className="account-input"
               />
               {errors.password && <FormError message={errors.password.message} />}
             </FormItem>
 
-            <FormItem>
-              <Label htmlFor="passwordConfirm" className="mb-2">
+            <FormItem className="account-form-field">
+              <Label htmlFor="passwordConfirm">
                 Confirm password
               </Label>
               <Input
@@ -175,13 +178,19 @@ export const AccountForm: React.FC = () => {
                   validate: (value) => value === password.current || 'The passwords do not match',
                 })}
                 type="password"
+                className="account-input"
               />
               {errors.passwordConfirm && <FormError message={errors.passwordConfirm.message} />}
             </FormItem>
           </div>
         </Fragment>
       )}
-      <Button disabled={isLoading || isSubmitting || !isDirty} type="submit" variant="default">
+      <Button
+        className="account-submit"
+        disabled={isLoading || isSubmitting || !isDirty}
+        type="submit"
+        variant="default"
+      >
         {isLoading || isSubmitting
           ? 'Processing'
           : changePassword

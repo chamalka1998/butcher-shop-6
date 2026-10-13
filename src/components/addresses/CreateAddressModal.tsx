@@ -21,6 +21,7 @@ type Props = {
   callback?: (address: Partial<Address>) => void
   skipSubmission?: boolean
   disabled?: boolean
+  accountStyle?: boolean
 }
 
 export const CreateAddressModal: React.FC<Props> = ({
@@ -31,6 +32,7 @@ export const CreateAddressModal: React.FC<Props> = ({
   callback,
   skipSubmission,
   disabled,
+  accountStyle = false,
 }) => {
   const [open, setOpen] = useState(false)
   const handleOpenChange = (state: boolean) => {
@@ -52,16 +54,21 @@ export const CreateAddressModal: React.FC<Props> = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}  >
       <DialogTrigger asChild disabled={disabled}>
-        <Button variant={'outline'}>{buttonText}</Button>
+        <Button
+          variant={accountStyle ? 'default' : 'outline'}
+          className={accountStyle ? 'account-address-trigger' : undefined}
+        >
+          {buttonText}
+        </Button>
       </DialogTrigger>
  
-      <DialogContent className="box-border w-[calc(100vw-2rem)] max-w-3xl overflow-x-hidden border border-[#4b4235] bg-[#080b0a] p-0 text-[#efe4cf] shadow-2xl sm:max-w-3xl">
+      <DialogContent className={`box-border w-[calc(100vw-2rem)] max-w-3xl overflow-x-hidden p-0 shadow-2xl sm:max-w-3xl ${accountStyle ? 'account-address-dialog border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]' : 'border border-[#4b4235] bg-[#080b0a] text-[#efe4cf]'}`}>
         <div className="box-border px-6 py-8 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
           <DialogHeader className="mb-10">
-            <DialogTitle className="text-4xl font-semibold tracking-tight text-[#f5c85b]">
+            <DialogTitle className={`text-4xl font-semibold tracking-tight ${accountStyle ? 'text-[#1A1A1A]' : 'text-[#f5c85b]'}`}>
               {modalTitle}
             </DialogTitle>
-            <DialogDescription className="mt-3 text-base text-[#d8cbb7]">
+            <DialogDescription className={`mt-3 text-base ${accountStyle ? 'text-[#625D57]' : 'text-[#d8cbb7]'}`}>
               This address will be connected to your account.
             </DialogDescription>
           </DialogHeader>
@@ -71,6 +78,7 @@ export const CreateAddressModal: React.FC<Props> = ({
             initialData={initialData}
             callback={handleCallback}
             skipSubmission={skipSubmission}
+            accountStyle={accountStyle}
           />
         </div>
       </DialogContent>

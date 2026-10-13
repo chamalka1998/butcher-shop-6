@@ -8,6 +8,8 @@ import { redirect } from 'next/navigation'
 import { AddressListing } from '@/components/addresses/AddressListing'
 import { CreateAddressModal } from '@/components/addresses/CreateAddressModal'
 
+import './addresses.css'
+
 export default async function AddressesPage() {
   const headers = await getHeaders()
   const payload = await getPayload({ config: configPromise })
@@ -20,44 +22,29 @@ export default async function AddressesPage() {
   }
 
   return (
-    <div className="mt-5 space-y-10 text-foreground">
-
-      {/* HEADER */}
-      <div>
-        <h1 className="text-5xl font-bold tracking-tight">
-          Address Book
-        </h1>
-
-        <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
-          Manage your billing details 
+    <div className="account-addresses">
+      <header className="account-addresses-heading">
+        <p className="account-addresses-eyebrow">Your butcher&apos;s craft account</p>
+        <h1>Address Book</h1>
+        <p className="account-addresses-description">
+          Manage the delivery details for your orders.
         </p>
-      </div>
+      </header>
 
-      {/* GRID */}
-      <div className="grid">
-
-        <h2 className="text-xl font-bold uppercase tracking-wide text-[#E2B84F] mb-5">
-           Shipping Address
-        </h2>
-
-        {/* LEFT - FORM / LIST */}
-        <div className="rounded-xl border border-border bg-card p-8">
-          {/* <h2 className="mb-8 text-xl font-bold uppercase tracking-[0.18em] text-[#E2B84F]">
-            Shipping Address
-          </h2> */}
-
-          <div className="">
-            <AddressListing />
-
-            <div className="border-t border-border/40 pt-6">
-              <CreateAddressModal />
-            </div>
-          </div>
+      <section className="account-addresses-section">
+        <div className="account-addresses-section-heading">
+          <span>01</span>
+          <h2>Shipping Address</h2>
         </div>
 
-      </div>
+        <div className="account-addresses-card">
+          <AddressListing />
 
-
+          <div className="account-addresses-add">
+            <CreateAddressModal accountStyle />
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

@@ -42,6 +42,7 @@ type Props = {
    * If true, the form will not submit to the API.
    */
   skipSubmission?: boolean
+  accountStyle?: boolean
 }
 
 export const AddressForm: React.FC<Props> = ({
@@ -49,6 +50,7 @@ export const AddressForm: React.FC<Props> = ({
   initialData,
   callback,
   skipSubmission,
+  accountStyle = false,
 }) => {
   const {
     register,
@@ -88,7 +90,10 @@ export const AddressForm: React.FC<Props> = ({
     [initialData, skipSubmission, callback, addressID, updateAddress, createAddress],
   )
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="box-border min-w-0 text-[#efe4cf]">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={`box-border min-w-0 ${accountStyle ? 'account-address-form text-[#1A1A1A]' : 'text-[#efe4cf]'}`}
+    >
       <div className="mb-8 grid gap-6 sm:mb-12">
         <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-[minmax(0,8.75rem)_minmax(0,1fr)_minmax(0,1fr)] md:items-start">
           <FormItem className="min-w-0">
@@ -106,7 +111,13 @@ export const AddressForm: React.FC<Props> = ({
               >
                 <SelectValue placeholder="Mr." />
               </SelectTrigger>
-              <SelectContent className="border-[#5d5445] bg-[#252827] text-[#efe4cf]">
+              <SelectContent
+                className={
+                  accountStyle
+                    ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
+                    : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
+                }
+              >
                 {titles.map((title) => (
                   <SelectItem key={title} value={title}>{title}</SelectItem>
                 ))}
@@ -239,7 +250,13 @@ export const AddressForm: React.FC<Props> = ({
             >
               <SelectValue placeholder="United States" />
             </SelectTrigger>
-            <SelectContent className="border-[#5d5445] bg-[#252827] text-[#efe4cf]">
+            <SelectContent
+              className={
+                accountStyle
+                  ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
+                  : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
+              }
+            >
               {supportedCountries.map((country) => {
                 const value = typeof country === 'string' ? country : country.value
                 const label =

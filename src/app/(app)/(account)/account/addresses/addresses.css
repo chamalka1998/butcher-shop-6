@@ -1,0 +1,267 @@
+main:has(.account-addresses) {
+  background: #faf7f2;
+  color: #1a1a1a;
+}
+
+.account-addresses {
+  --address-ink: #1a1a1a;
+  --address-rust: #8c3f34;
+  --address-cream: #faf7f2;
+  --address-surface: #efece6;
+  --address-stone: #dcd6ce;
+
+  width: 100%;
+  min-height: 100%;
+  padding: clamp(1.5rem, 4vw, 3.25rem);
+  color: var(--address-ink);
+  background: var(--address-cream);
+}
+
+.account-addresses-heading {
+  max-width: 760px;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.account-addresses-eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--address-rust);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.account-addresses-heading h1 {
+  margin: 0;
+  color: var(--address-ink);
+  font-family: var(--font-playfair, Georgia, serif);
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.account-addresses-description {
+  margin: 1rem 0 0;
+  color: #625d57;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.account-addresses-section-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.account-addresses-section-heading span {
+  color: var(--address-rust);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.account-addresses-section-heading h2 {
+  margin: 0;
+  color: var(--address-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.account-addresses-card {
+  overflow: hidden;
+  border: 1px solid var(--address-stone);
+  background: var(--address-surface);
+}
+
+.account-addresses-card [data-address-list] {
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.account-addresses-empty {
+  margin: 0;
+  color: #625d57;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.account-address-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  color: var(--address-ink);
+}
+
+.account-address-details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.account-address-details p {
+  margin: 0;
+  color: #625d57;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.account-address-details p:first-child {
+  margin-bottom: 0.25rem;
+  color: var(--address-ink);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.account-address-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.account-address-actions button,
+.account-addresses-add button {
+  min-height: 42px;
+  border: 1px solid var(--address-rust);
+  border-radius: 2px;
+  background: var(--address-rust);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.account-address-actions button:hover,
+.account-addresses-add button:hover {
+  background: #6f3028;
+  color: #fff;
+}
+
+.account-addresses-add {
+  border-top: 1px solid var(--address-stone);
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.account-address-dialog {
+  --address-ink: #1a1a1a;
+  --address-rust: #8c3f34;
+  --address-cream: #faf7f2;
+  --address-surface: #efece6;
+  --address-stone: #dcd6ce;
+
+  max-height: 90vh;
+  overflow-y: auto;
+  border-color: var(--address-stone);
+  border-radius: 3px;
+  background: var(--address-cream);
+  color: var(--address-ink);
+}
+
+.account-address-dialog [data-slot='dialog-title'] {
+  color: var(--address-ink);
+  font-family: var(--font-playfair, Georgia, serif);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+}
+
+.account-address-dialog [data-slot='dialog-description'] {
+  color: #625d57;
+}
+
+.account-address-dialog [data-slot='dialog-close'] {
+  color: var(--address-ink);
+}
+
+.account-address-form {
+  --address-ink: #1a1a1a;
+  --address-rust: #8c3f34;
+  --address-cream: #faf7f2;
+  --address-surface: #efece6;
+  --address-stone: #dcd6ce;
+
+  color: var(--address-ink);
+}
+
+.account-address-form label {
+  color: var(--address-ink);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.account-address-form input,
+.account-address-form [data-slot='select-trigger'] {
+  height: 44px;
+  border-color: var(--address-stone);
+  border-radius: 2px;
+  background: #fffdf9;
+  color: var(--address-ink);
+  box-shadow: none;
+}
+
+.account-address-form input::placeholder {
+  color: #817a72;
+}
+
+.account-address-form input:focus-visible,
+.account-address-form [data-slot='select-trigger']:focus-visible {
+  border-color: var(--address-rust);
+  outline: 3px solid rgb(140 63 52 / 15%);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+.account-address-form [data-slot='select-content'] {
+  border-color: var(--address-stone);
+  background: var(--address-cream);
+  color: var(--address-ink);
+}
+
+.account-address-form [data-slot='select-item']:focus {
+  background: var(--address-surface);
+  color: var(--address-rust);
+}
+
+.account-address-form [data-slot='button'][type='button'] {
+  background: transparent;
+  color: var(--address-rust);
+}
+
+.account-address-form [data-slot='button'][type='button']:hover {
+  color: #6f3028;
+}
+
+.account-address-form [data-slot='button'][type='submit'] {
+  min-height: 44px;
+  height: auto;
+  border: 1px solid var(--address-rust);
+  border-radius: 2px;
+  background: var(--address-rust);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.account-address-form [data-slot='button'][type='submit']:hover {
+  background: #6f3028;
+}
+
+@media (max-width: 640px) {
+  .account-addresses {
+    padding: 1.5rem 1rem;
+  }
+
+  .account-address-item {
+    flex-direction: column;
+  }
+
+  .account-address-actions {
+    flex-direction: row;
+  }
+}
