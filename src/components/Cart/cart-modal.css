@@ -368,6 +368,87 @@ body:has(.cart-sheet[data-state='open']) [data-slot='sheet-overlay'] {
   outline-offset: 3px;
 }
 
+.cart-freshness-overlay {
+  background: rgb(26 26 26 / 58%);
+}
+
+.cart-freshness-modal {
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  border-color: #dcd6ce;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: #faf7f2;
+  color: #1a1a1a;
+  box-shadow: 0 24px 80px rgb(26 26 26 / 24%);
+}
+
+.cart-freshness-icon {
+  width: 64px;
+  height: 64px;
+  border: 1px solid #d6b3a9;
+  background: #f3e7e4;
+  color: #8c3f34;
+}
+
+.cart-freshness-title {
+  color: #1a1a1a;
+  font-family: var(--serif, Georgia, serif);
+  font-size: clamp(1.7rem, 4vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.cart-freshness-divider {
+  background: #8c3f34;
+}
+
+.cart-freshness-message {
+  color: #625d57;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.cart-freshness-countdown {
+  color: #8c3f34;
+  font-weight: 700;
+}
+
+.cart-freshness-actions button {
+  min-height: 50px;
+  cursor: pointer;
+}
+
+.cart-freshness-confirm {
+  border: 1px solid #8c3f34;
+  background: #8c3f34;
+  color: #fff;
+}
+
+.cart-freshness-confirm:hover {
+  background: #6f3028;
+}
+
+.cart-freshness-extend {
+  border-color: #8c3f34;
+  color: #8c3f34;
+}
+
+.cart-freshness-extend:hover {
+  background: #f3e7e4;
+}
+
+.cart-freshness-actions button:focus-visible {
+  outline: 2px solid #8c3f34;
+  outline-offset: 3px;
+}
+
+.cart-freshness-footer {
+  color: #817a72;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+}
+
 @media (max-width: 500px) {
   .cart-sheet > button {
     top: 21px;
@@ -401,5 +482,26 @@ body:has(.cart-sheet[data-state='open']) [data-slot='sheet-overlay'] {
 
   .cart-foot {
     padding: 18px 20px 22px;
+  }
+
+  .cart-freshness-modal {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .cart-freshness-title {
+    margin-top: 1.5rem;
+  }
+
+  .cart-freshness-message {
+    margin-top: 1.25rem;
+    font-size: 0.88rem;
+  }
+
+  .cart-freshness-actions {
+    margin-top: 1.5rem;
+  }
+
+  .cart-freshness-footer {
+    margin-top: 1.5rem;
   }
 }

@@ -5,6 +5,8 @@ import React, { Fragment } from 'react'
 
 import { CheckoutPage } from '@/components/checkout/CheckoutPage'
 
+import '@/components/checkout/checkout.css'
+
 export default function Checkout() {
   return (
     <div className="">

@@ -30,27 +30,28 @@ export function CartTimerModal({
     if (!open) return null
 
     return createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="w-full max-w-[560px] border border-border bg-card px-10 py-12 text-center text-card-foreground shadow-2xl">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl border border-[#6f5620]/70 text-[#d4a63c]">
+        <div className="cart-freshness-overlay fixed inset-0 z-[99999] flex items-center justify-center bg-background/80 px-4 py-6 backdrop-blur-sm">
+            <div className="cart-freshness-modal w-full max-w-[560px] border border-border bg-card px-10 py-12 text-center text-card-foreground shadow-2xl">
+                <div className="cart-freshness-icon mx-auto flex h-16 w-16 items-center justify-center rounded-full">
                     <Hourglass size={34} />
                 </div>
 
-                <h2 className="mt-8 text-3xl font-black uppercase text-[#d4a63c]">
+                <h2 className="cart-freshness-title mt-8 text-3xl font-black">
                     {title}
                 </h2>
 
-                <div className="mx-auto mt-5 h-px w-14 bg-[#d4a63c]" />
+                <div className="cart-freshness-divider mx-auto mt-5 h-px w-14" />
 
-                <p className="mx-auto mt-7 max-w-[420px] text-lg leading-8 text-foreground">
-                    {secondsLeft} seconds remaining. {message}
+                <p className="cart-freshness-message mx-auto mt-7 max-w-[420px]">
+                    <span className="cart-freshness-countdown">{secondsLeft} seconds remaining.</span>{' '}
+                    {message}
                 </p>
 
-                <div className="mt-10 grid gap-4 sm:grid-cols-2">
+                <div className="cart-freshness-actions mt-10 grid gap-4 sm:grid-cols-2">
                     <button
                         type="button"
                         onClick={onConfirm}
-                        className="h-14 bg-[#d4a63c] text-sm font-black uppercase tracking-[0.18em] text-black transition-opacity hover:opacity-90"
+                        className="cart-freshness-confirm h-14 text-sm font-black uppercase tracking-[0.18em] transition-colors"
                     >
                         {confirmLabel}
                     </button>
@@ -58,14 +59,14 @@ export function CartTimerModal({
                     <button
                         type="button"
                         onClick={onExtend}
-                        className="h-14 border border-[#d4a63c] bg-transparent text-sm font-black uppercase tracking-[0.18em] text-[#d4a63c] transition-colors hover:bg-[#d4a63c]/10"
+                        className="cart-freshness-extend h-14 border bg-transparent text-sm font-black uppercase tracking-[0.18em] transition-colors"
                     >
                         {extendLabel}
                     </button>
                 </div>
 
                 {footerText && (
-                    <p className="mt-10 text-xs uppercase tracking-[0.35em] text-muted-foreground">
+                    <p className="cart-freshness-footer mt-10 text-xs uppercase tracking-[0.35em]">
                         {footerText}
                     </p>
                 )}

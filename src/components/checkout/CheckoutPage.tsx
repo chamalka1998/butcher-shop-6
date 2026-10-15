@@ -513,9 +513,14 @@ export const CheckoutPage: React.FC = () => {
                     />
                   </div>
                 ) : user ? (
-                  <CheckoutAddresses heading="Billing address" setAddress={setBillingAddress} />
+                  <CheckoutAddresses
+                    checkoutStyle
+                    heading="Billing address"
+                    setAddress={setBillingAddress}
+                  />
                 ) : (
                   <CreateAddressModal
+                    checkoutStyle
                     disabled={!email || Boolean(emailEditable)}
                     callback={(address) => {
                       setBillingAddress(address)
@@ -565,12 +570,14 @@ export const CheckoutPage: React.FC = () => {
                     </div>
                   ) : user ? (
                     <CheckoutAddresses
+                      checkoutStyle
                       heading="Shipping address"
                       description="Please select a shipping address."
                       setAddress={setShippingAddress}
                     />
                   ) : (
                     <CreateAddressModal
+                      checkoutStyle
                       callback={(address) => {
                         setShippingAddress(address)
                       }}
@@ -634,7 +641,7 @@ export const CheckoutPage: React.FC = () => {
                               theme: 'night',
                               variables: {
                                 borderRadius: '0px',
-                                colorPrimary: '#d8ad45',
+                                colorPrimary: '#8c3f34',
                                 gridColumnSpacing: '20px',
                                 gridRowSpacing: '20px',
                                 colorBackground: '#000000',
@@ -654,7 +661,7 @@ export const CheckoutPage: React.FC = () => {
                               theme: 'stripe',
                               variables: {
                                 borderRadius: '0px',
-                                colorPrimary: '#d8ad45',
+                                colorPrimary: '#8c3f34',
                                 gridColumnSpacing: '20px',
                                 gridRowSpacing: '20px',
                                 colorBackground: '#ffffff',

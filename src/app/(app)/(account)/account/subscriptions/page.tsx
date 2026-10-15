@@ -4,9 +4,12 @@ import { mediaUrlOrPlaceholder } from '@/utilities/placeholderImage'
 import { getPurchaseUnitPriceInCents } from '@/utilities/purchasePricing'
 import configPromise from '@payload-config'
 import { headers as getHeaders } from 'next/headers'
+import { ArrowRight, CalendarDays, MapPin, Package, Repeat2 } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
+
+import './subscriptions.css'
 
 export const dynamic = 'force-dynamic'
 
@@ -113,111 +116,163 @@ export default async function SubscriptionsPage() {
       .filter(Boolean),
   )
 
-  return (
-    <div className="space-y-12 text-foreground">
-      <div className="mt-3">
-        <h1 className="text-5xl font-bold tracking-tight">My Subscriptions</h1>
-        <p className="mt-3 text-muted-foreground">View your all Subscriptions</p>
-      </div>
+  const weeklyCount = subscriptionItems.filter(
+    (subscription) => subscription?.purchaseType === 'weekly',
+  ).length
+  const monthlyCount = subscriptionItems.filter(
+    (subscription) => subscription?.purchaseType === 'monthly',
+  ).length
 
-      {subscriptionItems.length === 0 ? (
-        <div className="border border-border bg-card p-10 text-muted-foreground">
-          You do not have any active subscriptions yet.
+  return (
+    <div className="subscriptions-page">
+      <header className="subscriptions-heading">
+        <div>
+          <p className="subscriptions-eyebrow">The Butcher&apos;s Craft · Your account</p>
+          <h1>Subscriptions</h1>
+          <p className="subscriptions-description">
+            Your favourite cuts, ready when you are. Review your recurring selections and
+            delivery details below.
+          </p>
         </div>
+        <Link className="subscriptions-shop-link" href="/shop">
+          Discover more cuts <ArrowRight aria-hidden="true" size={16} />
+        </Link>
+      </header>
+
+      <section aria-label="Subscription summary" className="subscriptions-summary">
+        <div className="subscriptions-summary-item">
+          <span className="subscriptions-summary-label">Recurring selections</span>
+          <span className="subscriptions-summary-value">{subscriptionItems.length}</span>
+        </div>
+        <div className="subscriptions-summary-item">
+          <span className="subscriptions-summary-label">Weekly</span>
+          <span className="subscriptions-summary-value">{weeklyCount}</span>
+        </div>
+        <div className="subscriptions-summary-item">
+          <span className="subscriptions-summary-label">Monthly</span>
+          <span className="subscriptions-summary-value">{monthlyCount}</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="subscriptions-list-heading" className="subscriptions-section">
+        <div className="subscriptions-section-heading">
+          <div>
+            <p className="subscriptions-section-kicker">Made for your table</p>
+            <h2 id="subscriptions-list-heading">Your recurring selections</h2>
+          </div>
+          <span className="subscriptions-count">
+            {subscriptionItems.length}{' '}
+            {subscriptionItems.length === 1 ? 'selection' : 'selections'}
+          </span>
+        </div>
+
+        {subscriptionItems.length === 0 ? (
+          <div className="subscriptions-empty">
+            <span className="subscriptions-empty-icon">
+              <Package aria-hidden="true" size={24} />
+            </span>
+            <h3>Make room at the table.</h3>
+            <p>
+              Choose a weekly or monthly favourite when you shop and it will appear here.
+            </p>
+            <Link className="subscriptions-empty-link" href="/shop">
+              Browse our cuts <ArrowRight aria-hidden="true" size={16} />
+            </Link>
+          </div>
       ) : (
-        <div className="space-y-8">
-          {subscriptionItems.map((subscription: any) => {
+        <div className="subscriptions-list">
+          {subscriptionItems.map((subscription) => {
+            if (!subscription) return null
+
             const { order, item, index, product, purchaseType, amount } = subscription
             const image = getProductImage(product)
-            const fulfillment = order.fulfillment as any
+            const fulfillment = order.fulfillment
             const address = order.shippingAddress
+            const isMonthly = purchaseType === 'monthly'
+            const frequency = isMonthly ? 'Monthly' : 'Weekly'
+            const subscriptionID = order.stripeSubscriptionID || `#${order.id}`
 
             return (
-              <section
+              <article
                 key={`${order.id}-${index}`}
-                className="grid overflow-hidden border border-border bg-card lg:grid-cols-[320px_1fr]"
+                className="subscription-card"
               >
-                <div className="relative bg-muted">
-                  <div className="flex h-full min-h-[300px] items-center justify-center">
-                    <img
-                      src={mediaUrlOrPlaceholder(image?.url, 'product')}
-                      alt={image?.alt || product?.title || 'Subscription product'}
-                      className="h-full w-full min-h-[300px] object-cover"
-                    />
-                  </div>
+                <div className="subscription-image-wrap">
+                  <img
+                    src={mediaUrlOrPlaceholder(image?.url, 'product')}
+                    alt={image?.alt || product?.title || 'Subscription product'}
+                    className="subscription-image"
+                  />
+                  <span className="subscription-frequency">
+                    <Repeat2 aria-hidden="true" size={13} />
+                    {frequency} selection
+                  </span>
                 </div>
 
-                <div className="p-10">
-                  <div className="flex flex-col gap-6 border-b border-border/40 pb-8 md:flex-row md:items-start md:justify-between">
-                    <div>
-                      <h2 className="text-xl font-bold uppercase">
-                        {product?.title || 'Subscription Box'}
-                      </h2>
-
-                      <p className="mt-2 text-muted-foreground">Quantity: {item.quantity || 1}</p>
-
-                      <p className="mt-2 text-muted-foreground">
-                        Subscription ID: {order.stripeSubscriptionID || `#${order.id}`}
-                      </p>
+                <div className="subscription-content">
+                  <div className="subscription-card-heading">
+                    <div className="subscription-product-heading">
+                      <p className="subscription-kicker">A regular favourite</p>
+                      <h3>{product?.title || 'Subscription Box'}</h3>
+                      <p className="subscription-id">Reference {subscriptionID}</p>
                     </div>
 
-                    <div className="text-left md:text-right">
-                      <p className="text-xl font-bold text-[#E2B84F]">
+                    <div className="subscription-price-block">
+                      <p className="subscription-price">
                         {formatMoney(amount)}
-                        <span className="text-sm font-normal text-muted-foreground">
-                          /{purchaseType === 'monthly' ? 'mo' : 'wk'}
-                        </span>
+                        <span> / {isMonthly ? 'month' : 'week'}</span>
                       </p>
-
-                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                        {purchaseType === 'monthly'
-                          ? 'Monthly Subscription'
-                          : 'Weekly Subscription'}
-                      </p>
+                      <p className="subscription-frequency-label">{frequency} subscription</p>
                     </div>
                   </div>
 
-                  <div className="grid gap-8 border-b border-border/40 py-8 md:grid-cols-2">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        Next Delivery
-                      </p>
-                      <p className="mt-3 font-semibold">{formatDate(fulfillment?.date)}</p>
+                  <div className="subscription-details">
+                    <div className="subscription-detail">
+                      <span className="subscription-detail-icon">
+                        <CalendarDays aria-hidden="true" size={17} />
+                      </span>
+                      <div>
+                        <p className="subscription-detail-label">Next delivery</p>
+                        <p className="subscription-detail-value">
+                          {formatDate(fulfillment?.date)}
+                        </p>
+                      </div>
                     </div>
 
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        Shipping To
-                      </p>
-                      <p className="mt-3 font-semibold">
-                        {address?.addressLine1
-                          ? `${address.addressLine1}, ${address.city || ''}`
-                          : '—'}
-                      </p>
+                    <div className="subscription-detail">
+                      <span className="subscription-detail-icon">
+                        <MapPin aria-hidden="true" size={17} />
+                      </span>
+                      <div>
+                        <p className="subscription-detail-label">Delivering to</p>
+                        <p className="subscription-detail-value">
+                          {address?.addressLine1
+                            ? `${address.addressLine1}${address.city ? `, ${address.city}` : ''}`
+                            : 'Address not specified'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                  <div className="subscription-card-footer">
+                    <span className="subscription-quantity">
+                      Quantity <strong>{item.quantity || 1}</strong>
+                    </span>
                     <Link
+                      aria-label={`Manage ${product?.title || 'subscription'} in order ${order.id}`}
+                      className="subscription-manage-link"
                       href={`/orders/${order.id}`}
-                      className="bg-[#E2B84F] px-8 py-4 text-center text-xs font-black uppercase tracking-[0.25em] text-black"
                     >
-                      Manage Selection
+                      Manage selection <ArrowRight aria-hidden="true" size={16} />
                     </Link>
-
-                    <button
-                      type="button"
-                      className="border border-border/60 px-8 py-4 text-xs font-black uppercase tracking-[0.25em] text-muted-foreground"
-                    >
-                      Pause Subscription
-                    </button>
                   </div>
                 </div>
-              </section>
+              </article>
             )
           })}
         </div>
-      )}
+        )}
+      </section>
     </div>
   )
 }

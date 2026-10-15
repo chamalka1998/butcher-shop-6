@@ -43,6 +43,7 @@ type Props = {
    */
   skipSubmission?: boolean
   accountStyle?: boolean
+  checkoutStyle?: boolean
 }
 
 export const AddressForm: React.FC<Props> = ({
@@ -51,6 +52,7 @@ export const AddressForm: React.FC<Props> = ({
   callback,
   skipSubmission,
   accountStyle = false,
+  checkoutStyle = false,
 }) => {
   const {
     register,
@@ -92,7 +94,7 @@ export const AddressForm: React.FC<Props> = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={`box-border min-w-0 ${accountStyle ? 'account-address-form text-[#1A1A1A]' : 'text-[#efe4cf]'}`}
+      className={`box-border min-w-0 ${accountStyle ? 'account-address-form text-[#1A1A1A]' : checkoutStyle ? 'checkout-address-form text-[#1A1A1A]' : 'text-[#efe4cf]'}`}
     >
       <div className="mb-8 grid gap-6 sm:mb-12">
         <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-[minmax(0,8.75rem)_minmax(0,1fr)_minmax(0,1fr)] md:items-start">
@@ -113,7 +115,7 @@ export const AddressForm: React.FC<Props> = ({
               </SelectTrigger>
               <SelectContent
                 className={
-                  accountStyle
+                  accountStyle || checkoutStyle
                     ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
                     : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
                 }
@@ -252,7 +254,7 @@ export const AddressForm: React.FC<Props> = ({
             </SelectTrigger>
             <SelectContent
               className={
-                accountStyle
+                accountStyle || checkoutStyle
                   ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
                   : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
               }
