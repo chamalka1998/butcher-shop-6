@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -34,6 +34,24 @@ type AddressFormValues = {
   phone?: string | null
 }
 
+type AddressSuggestion = {
+  id: string
+  unit?: string | null
+  address_line_1?: string | null
+  address_line_2?: string | null
+  city?: string | null
+  province_code?: string | null
+  province_name?: string | null
+  postal_code?: string | null
+  country_code?: string | null
+  display_address?: string | null
+}
+
+type AddressSuggestionsResponse = {
+  results?: AddressSuggestion[]
+  error?: string
+}
+
 type Props = {
   addressID?: Config['db']['defaultIDType']
   initialData?: Omit<Address, 'country' | 'id' | 'updatedAt' | 'createdAt'> & { country?: string }
@@ -59,11 +77,99 @@ export const AddressForm: React.FC<Props> = ({
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<AddressFormValues>({
     defaultValues: initialData,
   })
+  const provinceFilter = watch('state')
+  const [addressQuery, setAddressQuery] = useState('')
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false)
+  const [suggestionsEmpty, setSuggestionsEmpty] = useState(false)
+  const [suggestionsError, setSuggestionsError] = useState('')
 
   const { createAddress, updateAddress } = useAddresses()
+  const addressLine1Field = register('addressLine1', {
+    required: 'Address line 1 is required.',
+  })
+
+  useEffect(() => {
+    const query = addressQuery.trim()
+    const province = provinceFilter?.trim()
+
+    if (query.length < 2) {
+      setSuggestionsEmpty(false)
+      return
+    }
+
+    const controller = new AbortController()
+    const timeout = window.setTimeout(async () => {
+      setSuggestionsLoading(true)
+      setSuggestionsEmpty(false)
+      setSuggestionsError('')
+
+      try {
+        const searchParams = new URLSearchParams({ q: query, limit: '8' })
+        if (province) searchParams.set('province', province)
+
+        const response = await fetch(`/api/address-suggestions?${searchParams.toString()}`, {
+          signal: controller.signal,
+        })
+        const body = (await response.json()) as AddressSuggestionsResponse
+
+        if (!response.ok) {
+          throw new Error(body.error || 'Address suggestions are unavailable.')
+        }
+
+        const results = Array.isArray(body.results) ? body.results : []
+        setSuggestions(results)
+        setSuggestionsEmpty(results.length === 0)
+      } catch (error) {
+        if (controller.signal.aborted) return
+
+        console.error('Address suggestions request failed:', error)
+        setSuggestions([])
+        setSuggestionsEmpty(false)
+        setSuggestionsError(
+          error instanceof Error ? error.message : 'Address suggestions are unavailable.',
+        )
+      } finally {
+        if (!controller.signal.aborted) setSuggestionsLoading(false)
+      }
+    }, 250)
+
+    return () => {
+      window.clearTimeout(timeout)
+      controller.abort()
+    }
+  }, [addressQuery, provinceFilter])
+
+  const selectSuggestion = (suggestion: AddressSuggestion) => {
+    setValue('addressLine1', suggestion.address_line_1 || suggestion.display_address || '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setValue('addressLine2', suggestion.address_line_2 || suggestion.unit || '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setValue('city', suggestion.city || '', { shouldDirty: true, shouldValidate: true })
+    setValue('state', suggestion.province_code || suggestion.province_name || '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setValue('postalCode', suggestion.postal_code || '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    if (suggestion.country_code) {
+      setValue('country', suggestion.country_code, { shouldDirty: true, shouldValidate: true })
+    }
+
+    setAddressQuery('')
+    setSuggestions([])
+    setSuggestionsError('')
+  }
 
   const onSubmit = useCallback(
     async (data: AddressFormValues) => {
@@ -121,7 +227,9 @@ export const AddressForm: React.FC<Props> = ({
                 }
               >
                 {titles.map((title) => (
-                  <SelectItem key={title} value={title}>{title}</SelectItem>
+                  <SelectItem key={title} value={title}>
+                    {title}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -192,13 +300,68 @@ export const AddressForm: React.FC<Props> = ({
           <Label htmlFor="addressLine1" className="text-sm font-semibold text-[#e7dac4]">
             Address Line 1
           </Label>
-          <Input
-            id="addressLine1"
-            placeholder="Street address, P.O. box"
-            autoComplete="address-line1"
-            className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
-            {...register('addressLine1', { required: 'Address line 1 is required.' })}
-          />
+          <div className="relative">
+            <Input
+              id="addressLine1"
+              placeholder="Street address, P.O. box"
+              autoComplete="address-line1"
+              className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              aria-autocomplete="list"
+              aria-controls="address-suggestions"
+              aria-expanded={suggestions.length > 0 || suggestionsLoading || suggestionsEmpty}
+              {...addressLine1Field}
+              onChange={(event) => {
+                void addressLine1Field.onChange(event)
+                setAddressQuery(event.currentTarget.value)
+                setSuggestions([])
+                setSuggestionsEmpty(false)
+                setSuggestionsError('')
+                setSuggestionsLoading(false)
+              }}
+            />
+            {(suggestions.length > 0 || suggestionsLoading || suggestionsEmpty) && (
+              <ul
+                id="address-suggestions"
+                role="listbox"
+                aria-label="Address suggestions"
+                className={`absolute z-20 mt-1 max-h-60 w-full overflow-auto border shadow-lg ${
+                  accountStyle || checkoutStyle
+                    ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
+                    : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
+                }`}
+              >
+                {suggestionsLoading && (
+                  <li className="px-4 py-3 text-sm" aria-live="polite">
+                    Searching addresses…
+                  </li>
+                )}
+                {suggestionsEmpty && (
+                  <li className="px-4 py-3 text-sm" aria-live="polite">
+                    No matching addresses found. Try a different street or city.
+                  </li>
+                )}
+                {suggestions.map((suggestion) => (
+                  <li key={suggestion.id} role="option" aria-selected="false">
+                    <button
+                      type="button"
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+                      onClick={() => selectSuggestion(suggestion)}
+                    >
+                      {suggestion.display_address ||
+                        [suggestion.address_line_1, suggestion.city, suggestion.postal_code]
+                          .filter(Boolean)
+                          .join(', ')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {suggestionsError && (
+            <p className="text-sm text-red-600" role="status">
+              {suggestionsError}
+            </p>
+          )}
           {errors.addressLine1 && <FormError message={errors.addressLine1.message} />}
         </FormItem>
 
@@ -218,20 +381,41 @@ export const AddressForm: React.FC<Props> = ({
 
         <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-3">
           <FormItem className="min-w-0">
-            <Label htmlFor="city" className="text-sm font-semibold text-[#e7dac4]">City</Label>
-            <Input id="city" placeholder="New York" className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]" {...register('city', { required: 'City is required.' })} />
+            <Label htmlFor="city" className="text-sm font-semibold text-[#e7dac4]">
+              City
+            </Label>
+            <Input
+              id="city"
+              placeholder="New York"
+              className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              {...register('city', { required: 'City is required.' })}
+            />
             {errors.city && <FormError message={errors.city.message} />}
           </FormItem>
 
           <FormItem className="min-w-0">
-            <Label htmlFor="state" className="text-sm font-semibold text-[#e7dac4]">State / Province</Label>
-            <Input id="state" placeholder="NY" className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]" {...register('state')} />
+            <Label htmlFor="state" className="text-sm font-semibold text-[#e7dac4]">
+              State / Province
+            </Label>
+            <Input
+              id="state"
+              placeholder="NY"
+              className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              {...register('state')}
+            />
             {errors.state && <FormError message={errors.state.message} />}
           </FormItem>
 
           <FormItem className="min-w-0">
-            <Label htmlFor="postalCode" className="text-sm font-semibold text-[#e7dac4]">Zip Code</Label>
-            <Input id="postalCode" placeholder="10001" className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]" {...register('postalCode', { required: 'Postal code is required.' })} />
+            <Label htmlFor="postalCode" className="text-sm font-semibold text-[#e7dac4]">
+              Zip Code
+            </Label>
+            <Input
+              id="postalCode"
+              placeholder="10001"
+              className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              {...register('postalCode', { required: 'Postal code is required.' })}
+            />
             {errors.postalCode && <FormError message={errors.postalCode.message} />}
           </FormItem>
         </div>
@@ -268,7 +452,11 @@ export const AddressForm: React.FC<Props> = ({
                       ? country.label
                       : value
 
-                return <SelectItem key={value} value={value}>{label}</SelectItem>
+                return (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                )
               })}
             </SelectContent>
           </Select>
