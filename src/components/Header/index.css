@@ -121,6 +121,73 @@
   color: var(--rust);
 }
 
+.site-account-menu {
+  position: relative;
+}
+
+.site-account-menu summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 220px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--ink);
+}
+
+.site-account-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-account-menu summary:hover,
+.site-account-menu[open] summary {
+  color: var(--rust);
+}
+
+.site-account-menu summary span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-account-chevron {
+  flex: none;
+  transition: transform 0.2s;
+}
+
+.site-account-menu[open] .site-account-chevron {
+  transform: rotate(180deg);
+}
+
+.site-account-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  z-index: 60;
+  display: grid;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 0 12px 30px rgb(44 31 30 / 12%);
+}
+
+.site-account-dropdown a {
+  padding: 10px 12px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.site-account-dropdown a:hover {
+  background: var(--cream);
+  color: var(--rust);
+}
+
+.site-account-loading {
+  width: 72px;
+}
+
 .site-bag {
   width: 38px;
   height: 38px;
@@ -131,7 +198,9 @@
   background: transparent;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
   color: var(--ink);
 }
 

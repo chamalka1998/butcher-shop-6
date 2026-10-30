@@ -38,6 +38,7 @@ export function CartModal() {
 
   const hasAcknowledgedWarningRef = useRef(false)
   const isResettingTimerRef = useRef(false)
+  const warningThresholdRef = useRef<number | null>(null)
 
   type PurchaseType = 'one_time' | 'weekly' | 'monthly'
 
@@ -128,6 +129,7 @@ export function CartModal() {
 
     isResettingTimerRef.current = true
     hasAcknowledgedWarningRef.current = false
+    warningThresholdRef.current = Number(settings?.warningSeconds ?? 0)
 
     setSecondsLeft(timerSeconds)
     setShowTimerModal(false)
@@ -160,7 +162,7 @@ export function CartModal() {
       return
     }
 
-    const warningSeconds = Number(settings?.warningSeconds ?? 0)
+    const warningSeconds = warningThresholdRef.current ?? Number(settings?.warningSeconds ?? 0)
 
     if (
       warningSeconds > 0 &&
@@ -404,17 +406,18 @@ export function CartModal() {
         extendLabel={settings?.extendButtonLabel || ''}
         footerText={settings?.footerText}
         onConfirm={() => {
-          hasAcknowledgedWarningRef.current = true
           setShowTimerModal(false)
+          void clearCart()
         }}
         onExtend={() => {
           const extendSeconds = Number(settings?.extendSeconds ?? 0)
 
           if (!extendSeconds || extendSeconds <= 0) {
-            setShowTimerModal(false)
+            console.error('Cart timer extension is invalid:', settings?.extendSeconds)
             return
           }
 
+          warningThresholdRef.current = secondsLeft ?? 0
           hasAcknowledgedWarningRef.current = false
           setSecondsLeft((current) => (current ?? 0) + extendSeconds)
           setShowTimerModal(false)

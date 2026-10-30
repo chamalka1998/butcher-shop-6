@@ -136,9 +136,15 @@ export const ConfirmOrder: React.FC = () => {
   }, [cart, confirmOrder, router, searchParams])
 
   return (
-    <div className="text-center w-full flex flex-col items-center justify-start gap-4">
-      <h1 className="text-2xl">Confirming Order</h1>
-
+    <div className="confirm-order-status" role="status" aria-live="polite">
+      <span aria-hidden="true" className="confirm-order-mark">
+        ✓
+      </span>
+      <p className="confirm-order-eyebrow">Payment received</p>
+      <h1>Confirming your order</h1>
+      <p className="confirm-order-description">
+        We&apos;re securing your order details. This should only take a moment.
+      </p>
       <LoadingSpinner className="w-12 h-6" />
     </div>
   )

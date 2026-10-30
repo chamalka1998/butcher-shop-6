@@ -1,0 +1,72 @@
+.confirm-order-page {
+  display: grid;
+  min-height: max(520px, calc(100vh - 150px));
+  place-items: center;
+  padding: 2rem 1.25rem;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(236 226 212 / 65%), transparent 60%),
+    #faf7f2;
+  color: #1a1a1a;
+}
+
+.confirm-order-status {
+  display: flex;
+  width: min(100%, 560px);
+  min-height: 360px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dcd6ce;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  background: #fffdf9;
+  text-align: center;
+  box-shadow: 0 20px 60px rgb(43 33 25 / 7%);
+}
+
+.confirm-order-mark {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf3eb;
+  color: #426044;
+  font-size: 1.5rem;
+  font-weight: 750;
+}
+
+.confirm-order-eyebrow {
+  margin: 1.5rem 0 0.55rem;
+  color: #8c3f34;
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.confirm-order-status h1 {
+  margin: 0;
+  color: #1a1a1a;
+  font-family: var(--font-playfair, Georgia, serif);
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.confirm-order-description {
+  max-width: 26rem;
+  margin: 0.8rem 0 1.4rem;
+  color: #625d57;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.confirm-order-status > span:last-child {
+  color: #8c3f34;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-order-status .animate-spin {
+    animation-duration: 1.5s;
+  }
+}

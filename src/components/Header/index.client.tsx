@@ -1,20 +1,15 @@
 'use client'
 
 import { Cart } from '@/components/Cart'
-import { OpenCartButton } from '@/components/Cart/OpenCart'
 import { CMSLink } from '@/components/Link'
-import { useTheme } from '@/providers/Theme'
-import { cn } from '@/utilities/cn'
+import { useAuth } from '@/providers/Auth'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import type { Header } from 'src/payload-types'
 import { MobileMenu } from './MobileMenu'
-// import { LogoIcon } from '@/components/icons/logo'
-import { Moon, Search, Sun, User } from 'lucide-react'
-
 import { Media } from '@/components/Media'
-import { placeholderFor } from '@/utilities/placeholderImage'
+import { ChevronDown, UserRound } from 'lucide-react'
 
 type Props = {
   header: Header
@@ -23,6 +18,7 @@ type Props = {
 export function HeaderClient({ header }: Props) {
   const menu = header.navItems || []
   const pathname = usePathname()
+  const { status, user } = useAuth()
 
   const defaultNav = [
     { label: 'Home', url: '/' },
@@ -38,7 +34,8 @@ export function HeaderClient({ header }: Props) {
     <>
       {/* ── Topline Notification Bar ── */}
       <div className="site-topline">
-        SMALL BATCH BUTCHERY <span>•</span> FRESH CUT TO ORDER <span>•</span> DELIVERING ACROSS TORONTO
+        SMALL BATCH BUTCHERY <span>•</span> FRESH CUT TO ORDER <span>•</span> DELIVERING ACROSS
+        TORONTO
       </div>
 
       {/* ── Main Navigation Bar ── */}
@@ -100,11 +97,7 @@ export function HeaderClient({ header }: Props) {
                         : false
 
                   return (
-                    <Link
-                      key={item.label}
-                      href={item.url}
-                      className={isActive ? 'active' : ''}
-                    >
+                    <Link key={item.label} href={item.url} className={isActive ? 'active' : ''}>
                       {item.label}
                     </Link>
                   )
@@ -113,7 +106,25 @@ export function HeaderClient({ header }: Props) {
 
           {/* Right Action Icons & Controls */}
           <div className="site-navactions">
-            <Link href="/account">Sign in</Link>
+            {status === 'loggedIn' && user ? (
+              <details className="site-account-menu">
+                <summary aria-label="Open account menu">
+                  <UserRound aria-hidden="true" size={17} />
+                  <span>{user.name || user.email}</span>
+                  <ChevronDown aria-hidden="true" className="site-account-chevron" size={14} />
+                </summary>
+                <div className="site-account-dropdown">
+                  <Link href="/account">Manage account</Link>
+                  <Link href="/orders">Orders</Link>
+                  <Link href="/account/addresses">Addresses</Link>
+                  <Link href="/logout">Log out</Link>
+                </div>
+              </details>
+            ) : status === 'loggedOut' ? (
+              <Link href="/login">Sign in</Link>
+            ) : (
+              <span className="site-account-loading" aria-label="Loading account" />
+            )}
 
             <div className="site-bag" title="Shopping bag">
               <Suspense fallback={<span className="text-xs">♧</span>}>

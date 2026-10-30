@@ -1,0 +1,80 @@
+.order-detail-page {
+  min-height: 100vh;
+  padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgb(236 226 212 / 55%), transparent 40%),
+    #faf7f2;
+  color: #1a1a1a;
+}
+
+.order-detail-page > div {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.order-detail-page h1 {
+  color: #1a1a1a;
+  font-family: var(--font-playfair, Georgia, serif);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.order-detail-page h2 {
+  color: #8c3f34;
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.order-detail-page section {
+  border-color: #dcd6ce;
+  background: #fffdf9;
+  box-shadow: 0 14px 36px rgb(43 33 25 / 5%);
+}
+
+.order-detail-page a {
+  color: #8c3f34;
+}
+
+.order-detail-page a:hover {
+  color: #6f3028;
+}
+
+.order-detail-page [class*='text-muted-foreground'],
+.order-detail-page [class*='text-neutral-500'] {
+  color: #625d57;
+}
+
+.order-detail-page [class*='text-[#f5a400]'] {
+  color: #8c3f34;
+}
+
+.order-detail-page [class*='border-border'] {
+  border-color: #dcd6ce;
+}
+
+.order-detail-page [class*='text-foreground'] {
+  color: #1a1a1a;
+}
+
+.order-detail-page [class*='rounded-full'] {
+  border-color: #e1cfc7;
+  background: #f8f0ec;
+  color: #8c3f34;
+}
+
+.order-detail-page [data-slot='button'] {
+  color: #8c3f34;
+}
+
+@media (max-width: 640px) {
+  .order-detail-page {
+    padding-inline: 0.75rem;
+  }
+
+  .order-detail-page section {
+    padding: 1.1rem;
+  }
+}

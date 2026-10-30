@@ -19,6 +19,9 @@ import { Button } from '@/components/ui/button'
 import { deepMergeSimple } from 'payload/shared'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
+import { MapPin, Search, Sparkles } from 'lucide-react'
+
+type AddressEntryMode = 'automatic' | 'manual'
 
 type AddressFormValues = {
   title?: string | null
@@ -82,6 +85,12 @@ export const AddressForm: React.FC<Props> = ({
     defaultValues: initialData,
   })
   const provinceFilter = watch('state')
+  const countryValue = watch('country')
+  const currentAddressLine1 = watch('addressLine1')
+  const [addressEntryMode, setAddressEntryMode] = useState<AddressEntryMode>(
+    initialData?.addressLine1 ? 'manual' : 'automatic',
+  )
+  const [isSelectedAddressLocked, setIsSelectedAddressLocked] = useState(false)
   const [addressQuery, setAddressQuery] = useState('')
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [suggestionsLoading, setSuggestionsLoading] = useState(false)
@@ -94,11 +103,22 @@ export const AddressForm: React.FC<Props> = ({
   })
 
   useEffect(() => {
+    if (addressEntryMode !== 'automatic') {
+      setSuggestions([])
+      setSuggestionsEmpty(false)
+      setSuggestionsLoading(false)
+      setSuggestionsError('')
+      return
+    }
+
     const query = addressQuery.trim()
     const province = provinceFilter?.trim()
 
     if (query.length < 2) {
+      setSuggestions([])
       setSuggestionsEmpty(false)
+      setSuggestionsLoading(false)
+      setSuggestionsError('')
       return
     }
 
@@ -142,7 +162,16 @@ export const AddressForm: React.FC<Props> = ({
       window.clearTimeout(timeout)
       controller.abort()
     }
-  }, [addressQuery, provinceFilter])
+  }, [addressEntryMode, addressQuery, provinceFilter])
+
+  const changeAddressEntryMode = (mode: AddressEntryMode) => {
+    setAddressEntryMode(mode)
+    setIsSelectedAddressLocked(false)
+    setSuggestions([])
+    setSuggestionsEmpty(false)
+    setSuggestionsError('')
+    setAddressQuery(mode === 'automatic' ? currentAddressLine1 || '' : '')
+  }
 
   const selectSuggestion = (suggestion: AddressSuggestion) => {
     setValue('addressLine1', suggestion.address_line_1 || suggestion.display_address || '', {
@@ -166,6 +195,8 @@ export const AddressForm: React.FC<Props> = ({
       setValue('country', suggestion.country_code, { shouldDirty: true, shouldValidate: true })
     }
 
+    setIsSelectedAddressLocked(true)
+    setAddressEntryMode('manual')
     setAddressQuery('')
     setSuggestions([])
     setSuggestionsError('')
@@ -296,66 +327,187 @@ export const AddressForm: React.FC<Props> = ({
           </FormItem>
         </div>
 
+        <section
+          aria-label="Address entry method"
+          className={`rounded-sm border p-4 ${
+            accountStyle || checkoutStyle
+              ? 'border-[#E5E1DC] bg-[#F9F8F6]'
+              : 'border-[#5d5445] bg-[#1d211f]'
+          }`}
+        >
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#6B3830]">
+                Address details
+              </p>
+              <p
+                className={`text-sm ${
+                  accountStyle || checkoutStyle ? 'text-[#7A726D]' : 'text-[#c3b9ab]'
+                }`}
+              >
+                Search for a verified address or enter it yourself.
+              </p>
+            </div>
+            <Sparkles aria-hidden="true" className="mt-1 shrink-0 text-[#6B3830]" size={18} />
+          </div>
+          <div
+            className={`grid grid-cols-2 gap-2 rounded-sm p-1 ${
+              accountStyle || checkoutStyle ? 'bg-[#EFECE8]' : 'bg-[#121513]'
+            }`}
+            role="group"
+            aria-label="Choose address entry method"
+          >
+            <button
+              type="button"
+              aria-pressed={addressEntryMode === 'automatic'}
+              className={`inline-flex min-h-10 items-center justify-center gap-2 px-3 text-xs font-semibold transition-colors sm:text-sm ${
+                addressEntryMode === 'automatic'
+                  ? 'bg-[#6B3830] text-white shadow-sm'
+                  : accountStyle || checkoutStyle
+                    ? 'text-[#7A726D] hover:text-[#1A1A1A]'
+                    : 'text-[#c3b9ab] hover:text-white'
+              }`}
+              onClick={() => changeAddressEntryMode('automatic')}
+            >
+              <Search aria-hidden="true" size={16} />
+              Search address
+            </button>
+            <button
+              type="button"
+              aria-pressed={addressEntryMode === 'manual'}
+              className={`inline-flex min-h-10 items-center justify-center px-3 text-xs font-semibold transition-colors sm:text-sm ${
+                addressEntryMode === 'manual'
+                  ? 'bg-[#6B3830] text-white shadow-sm'
+                  : accountStyle || checkoutStyle
+                    ? 'text-[#7A726D] hover:text-[#1A1A1A]'
+                    : 'text-[#c3b9ab] hover:text-white'
+              }`}
+              onClick={() => changeAddressEntryMode('manual')}
+            >
+              Enter manually
+            </button>
+          </div>
+        </section>
+
         <FormItem className="min-w-0">
           <Label htmlFor="addressLine1" className="text-sm font-semibold text-[#e7dac4]">
-            Address Line 1
+            {addressEntryMode === 'automatic' ? 'Search your address' : 'Address Line 1'}
           </Label>
           <div className="relative">
             <Input
               id="addressLine1"
-              placeholder="Street address, P.O. box"
+              placeholder={
+                addressEntryMode === 'automatic'
+                  ? 'Start typing a street, city, or postal code'
+                  : 'Street address, P.O. box'
+              }
               autoComplete="address-line1"
-              className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
-              aria-autocomplete="list"
-              aria-controls="address-suggestions"
-              aria-expanded={suggestions.length > 0 || suggestionsLoading || suggestionsEmpty}
+              className={`h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60] ${
+                accountStyle || checkoutStyle
+                  ? 'border-[#DEDAD5] bg-white text-[#1A1A1A] placeholder:text-[#A29A94]'
+                  : ''
+              }`}
+              aria-autocomplete={addressEntryMode === 'automatic' ? 'list' : undefined}
+              aria-controls={addressEntryMode === 'automatic' ? 'address-suggestions' : undefined}
+              aria-expanded={
+                addressEntryMode === 'automatic' &&
+                (suggestions.length > 0 || suggestionsLoading || suggestionsEmpty)
+              }
               {...addressLine1Field}
+              readOnly={isSelectedAddressLocked}
               onChange={(event) => {
                 void addressLine1Field.onChange(event)
-                setAddressQuery(event.currentTarget.value)
+                setAddressQuery(addressEntryMode === 'automatic' ? event.currentTarget.value : '')
                 setSuggestions([])
                 setSuggestionsEmpty(false)
                 setSuggestionsError('')
                 setSuggestionsLoading(false)
               }}
             />
-            {(suggestions.length > 0 || suggestionsLoading || suggestionsEmpty) && (
-              <ul
-                id="address-suggestions"
-                role="listbox"
-                aria-label="Address suggestions"
-                className={`absolute z-20 mt-1 max-h-60 w-full overflow-auto border shadow-lg ${
-                  accountStyle || checkoutStyle
-                    ? 'border-[#DCD6CE] bg-[#FAF7F2] text-[#1A1A1A]'
-                    : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
-                }`}
-              >
-                {suggestionsLoading && (
-                  <li className="px-4 py-3 text-sm" aria-live="polite">
-                    Searching addresses…
-                  </li>
-                )}
-                {suggestionsEmpty && (
-                  <li className="px-4 py-3 text-sm" aria-live="polite">
-                    No matching addresses found. Try a different street or city.
-                  </li>
-                )}
-                {suggestions.map((suggestion) => (
-                  <li key={suggestion.id} role="option" aria-selected="false">
-                    <button
-                      type="button"
-                      className="w-full px-4 py-3 text-left text-sm hover:bg-black/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
-                      onClick={() => selectSuggestion(suggestion)}
+            {addressEntryMode === 'automatic' &&
+              (suggestions.length > 0 || suggestionsLoading || suggestionsEmpty) && (
+                <div
+                  id="address-suggestions"
+                  role="listbox"
+                  aria-label="Address suggestions"
+                  className={`absolute left-0 top-full z-30 mt-2 max-h-72 w-full overflow-auto border py-2 shadow-[0_16px_40px_rgba(44,31,30,0.16)] ${
+                    accountStyle || checkoutStyle
+                      ? 'border-[#E5E1DC] bg-white text-[#1A1A1A]'
+                      : 'border-[#5d5445] bg-[#252827] text-[#efe4cf]'
+                  }`}
+                >
+                  {suggestionsLoading && (
+                    <p
+                      className={`px-4 py-3 text-sm ${
+                        accountStyle || checkoutStyle ? 'text-[#7A726D]' : 'text-[#c3b9ab]'
+                      }`}
+                      aria-live="polite"
                     >
-                      {suggestion.display_address ||
-                        [suggestion.address_line_1, suggestion.city, suggestion.postal_code]
-                          .filter(Boolean)
-                          .join(', ')}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      Searching addresses…
+                    </p>
+                  )}
+                  {suggestionsEmpty && (
+                    <p
+                      className={`px-4 py-3 text-sm ${
+                        accountStyle || checkoutStyle ? 'text-[#7A726D]' : 'text-[#c3b9ab]'
+                      }`}
+                      aria-live="polite"
+                    >
+                      No matching addresses found. Try another street or city, or enter your address
+                      manually.
+                    </p>
+                  )}
+                  {suggestions.map((suggestion) => {
+                    const addressTitle =
+                      suggestion.address_line_1 || suggestion.display_address || 'Address'
+                    const addressDetails = [
+                      suggestion.address_line_2 || suggestion.unit,
+                      suggestion.city,
+                      suggestion.province_code || suggestion.province_name,
+                      suggestion.postal_code,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')
+
+                    return (
+                      <button
+                        key={suggestion.id}
+                        type="button"
+                        role="option"
+                        aria-selected="false"
+                        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] ${
+                          accountStyle || checkoutStyle
+                            ? 'hover:bg-[#F9F8F6] focus-visible:outline-[#6B3830]'
+                            : 'hover:bg-white/10 focus-visible:outline-[#c99b8f]'
+                        }`}
+                        onClick={() => selectSuggestion(suggestion)}
+                      >
+                        <span
+                          className={`grid size-9 shrink-0 place-items-center rounded-full ${
+                            accountStyle || checkoutStyle
+                              ? 'bg-[#F6ECE9] text-[#6B3830]'
+                              : 'bg-[#3a2926] text-[#c99b8f]'
+                          }`}
+                        >
+                          <MapPin aria-hidden="true" size={17} />
+                        </span>
+                        <span className="flex min-w-0 flex-1 flex-col gap-1">
+                          <span className="truncate text-sm font-semibold">{addressTitle}</span>
+                          {addressDetails && (
+                            <span
+                              className={`truncate text-xs ${
+                                accountStyle || checkoutStyle ? 'text-[#7A726D]' : 'text-[#c3b9ab]'
+                              }`}
+                            >
+                              {addressDetails}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
           </div>
           {suggestionsError && (
             <p className="text-sm text-red-600" role="status">
@@ -374,6 +526,7 @@ export const AddressForm: React.FC<Props> = ({
             placeholder="Apartment, suite, unit, floor"
             autoComplete="address-line2"
             className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+            readOnly={isSelectedAddressLocked}
             {...register('addressLine2')}
           />
           {errors.addressLine2 && <FormError message={errors.addressLine2.message} />}
@@ -388,6 +541,7 @@ export const AddressForm: React.FC<Props> = ({
               id="city"
               placeholder="New York"
               className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              readOnly={isSelectedAddressLocked}
               {...register('city', { required: 'City is required.' })}
             />
             {errors.city && <FormError message={errors.city.message} />}
@@ -401,6 +555,7 @@ export const AddressForm: React.FC<Props> = ({
               id="state"
               placeholder="NY"
               className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              readOnly={isSelectedAddressLocked}
               {...register('state')}
             />
             {errors.state && <FormError message={errors.state.message} />}
@@ -414,6 +569,7 @@ export const AddressForm: React.FC<Props> = ({
               id="postalCode"
               placeholder="10001"
               className="h-11 min-h-11 w-full min-w-0 rounded-none border-[#5d5445] bg-[#252827] text-[#efe4cf] placeholder:text-[#6f6a60]"
+              readOnly={isSelectedAddressLocked}
               {...register('postalCode', { required: 'Postal code is required.' })}
             />
             {errors.postalCode && <FormError message={errors.postalCode.message} />}
@@ -426,9 +582,10 @@ export const AddressForm: React.FC<Props> = ({
           </Label>
           <Select
             {...register('country', { required: 'Country is required.' })}
+            disabled={isSelectedAddressLocked}
+            value={countryValue || ''}
             onValueChange={(value) => setValue('country', value, { shouldValidate: true })}
             required
-            defaultValue={initialData?.country || ''}
           >
             <SelectTrigger
               id="country"

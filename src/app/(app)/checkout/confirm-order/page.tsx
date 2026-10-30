@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import React, { Fragment } from 'react'
 import { ConfirmOrder } from '@/components/checkout/ConfirmOrder'
+import './confirm-order.css'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -16,9 +17,9 @@ export default async function ConfirmOrderPage({
   const paymentIntent = searchParams.paymentId
 
   return (
-    <div className="container min-h-[90vh] flex py-12">
+    <main className="confirm-order-page">
       <ConfirmOrder />
-    </div>
+    </main>
   )
 }
 

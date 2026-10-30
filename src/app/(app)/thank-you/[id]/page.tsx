@@ -10,6 +10,7 @@ import { headers as getHeaders } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import './thank-you.css'
 
 export const dynamic = 'force-dynamic'
 
@@ -169,41 +170,37 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
   const address = typedOrder.shippingAddress
 
   return (
-    <main className="min-h-screen text-[#e2e2e2]">
-      <section className="relative flex h-[520px] items-center justify-center overflow-hidden text-center">
-        <div className="absolute inset-0 bg-dark" />
-
-        <div className="relative z-10 px-6">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#D3A84B] text-2xl font-black text-black">
+    <main className="thank-you-page">
+      <section className="thank-you-hero">
+        <div className="thank-you-hero-content">
+          <div aria-hidden="true" className="thank-you-check">
             ✓
           </div>
-
-          <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+          <p className="thank-you-eyebrow">The Butcher&apos;s Craft · Order confirmed</p>
+          <h1>
             Thank You for Your Order
           </h1>
-
-          <p className="mt-5 text-lg text-[#d2c5b1]">
+          <p className="thank-you-intro">
             Your order{' '}
-            <span className="font-bold text-[#D3A84B]">#{typedOrder.id}</span>{' '}
+            <span>#{typedOrder.id}</span>{' '}
             is being prepared.
           </p>
         </div>
       </section>
 
-      <section className="relative z-20 mx-auto -mt-10 grid max-w-7xl grid-cols-1 gap-6 px-6 pb-20 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <div className="border border-[#333535] bg-[#1e2020] p-8">
-            <div className="mb-8 flex items-end justify-between border-b border-[#333535] pb-4">
-              <h2 className="text-2xl font-bold uppercase tracking-[0.18em] text-[#D3A84B]">
+      <section className="thank-you-content">
+        <div className="thank-you-main">
+          <div className="thank-you-summary">
+            <div className="thank-you-summary-heading">
+              <h2>
                 Order Summary
               </h2>
-
-              <p className="text-xs uppercase tracking-[0.18em] text-[#9a8f7e]">
+              <p>
                 Placed {formatDate(typedOrder.createdAt)}
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="thank-you-items">
               {linePricingDocs.map(({ item, product, variant }, index) => {
                 if (!product) return null
 
@@ -217,8 +214,8 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
                 const lineTotal = unitPrice * quantity
 
                 return (
-                  <div key={item.id || index} className="flex items-center gap-5">
-                    <div className="relative h-24 w-24 overflow-hidden bg-[#333535]">
+                  <div key={item.id || index} className="thank-you-item">
+                    <div className="thank-you-item-image">
                       <Media
                         fill
                         imgClassName="object-cover"
@@ -228,11 +225,11 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
                       />
                     </div>
 
-                    <div className="flex-1">
-                      <h3 className="font-bold uppercase text-white">{product.title}</h3>
+                    <div className="thank-you-item-details">
+                      <h3>{product.title}</h3>
 
                       {purchaseTypeForPricing && purchaseTypeForPricing !== 'one_time' ? (
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#D3A84B]">
+                        <p className="thank-you-item-subscription">
                           {purchaseTypeForPricing === 'monthly'
                             ? 'Monthly subscription'
                             : 'Weekly subscription'}
@@ -240,71 +237,70 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
                       ) : null}
 
                       {variant?.title ? (
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#9a8f7e]">
+                        <p className="thank-you-item-variant">
                           {variant.title}
                         </p>
                       ) : null}
                     </div>
 
-                    <div className="text-right">
-                      <p className="font-bold text-[#D3A84B]">{formatMoney(lineTotal)}</p>
-                      <p className="mt-1 text-xs uppercase text-[#9a8f7e]">Qty: {quantity}</p>
+                    <div className="thank-you-item-price">
+                      <p>{formatMoney(lineTotal)}</p>
+                      <p>Qty: {quantity}</p>
                     </div>
                   </div>
                 )
               })}
             </div>
 
-            <div className="mt-10 space-y-3 border-t border-[#333535] pt-6">
-              <div className="flex justify-between text-sm uppercase tracking-[0.12em] text-[#d2c5b1]">
+            <div className="thank-you-totals">
+              <div>
                 <span>Subtotal</span>
                 <span>{formatMoney(itemsSubtotal)}</span>
               </div>
 
-              <div className="flex justify-between text-sm uppercase tracking-[0.12em] text-[#d2c5b1]">
+              <div>
                 <span>Shipping</span>
                 {/* <span>{shippingTotal > 0 ? formatMoney(shippingTotal) : '0.00'}</span> */}
                 <span>{formatMoney(shippingTotal)}</span>
               </div>
 
-              <div className="flex justify-between text-sm uppercase tracking-[0.12em] text-[#d2c5b1]">
+              <div>
                 <span>Tax</span>
                 <span>{formatMoney(estimatedTax)}</span>
               </div>
 
-              <div className="flex justify-between border-t border-[#333535] pt-4 text-2xl font-black">
-                <span className="uppercase text-[#D3A84B]">Total Amount</span>
-                <span>{formatMoney(calculatedTotal)}</span>
+              <div className="thank-you-total">
+                <span>Total Amount</span>
+                <strong>{formatMoney(calculatedTotal)}</strong>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="thank-you-actions">
             <Link
               href="/shop"
-              className="bg-[#D3A84B] py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-black"
+              className="thank-you-shop-link"
             >
               Return to Shop
             </Link>
 
             <Link
               href={orderUrl}
-              className="border border-[#D3A84B] py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-[#D3A84B]"
+              className="thank-you-order-link"
             >
               View Order
             </Link>
           </div>
         </div>
 
-        <aside className="space-y-6 lg:col-span-4">
-          <div className="border border-[#333535] bg-[#282a2b] p-7">
-
+        <aside className="thank-you-aside">
+          <div className="thank-you-fulfillment">
             {typedOrder.fulfillment?.date ? (
-              <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.18em] text-[#9a8f7e]">
+              <div className="thank-you-arrival">
+                <p className="thank-you-detail-label">
                   Estimated Arrival
                 </p>
-                <p className="mt-1 text-xl font-bold">
+                <p className="thank-you-arrival-date">
                   {formatDate(typedOrder.fulfillment.date)}
                 </p>
               </div>
@@ -312,11 +308,11 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
 
             {address ? (
               <div>
-                <p className="mb-2 text-xs uppercase tracking-[0.18em] text-[#9a8f7e]">
+                <p className="thank-you-detail-label">
                   Shipping Address
                 </p>
 
-                <p className="leading-relaxed text-[#e2e2e2]">
+                <p className="thank-you-address">
                   {[address.firstName, address.lastName].filter(Boolean).join(' ')}
                   <br />
                   {address.addressLine1}
@@ -335,15 +331,15 @@ export default async function ThankYouPage({ params, searchParams }: PageProps) 
             ) : null}
           </div>
 
-          <div className="border border-[#D3A84B]/30 bg-black p-7">
-            <p className="text-lg italic leading-relaxed text-[#e2e2e2]">
+          <div className="thank-you-quote">
+            <p>
               “Every cut that leaves our atelier is a testament to heritage, craft, and the pursuit
               of culinary perfection.”
             </p>
 
-            <div className="mt-8 flex items-center gap-3">
-              <div className="h-px w-8 bg-[#D3A84B]" />
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#D3A84B]">
+            <div className="thank-you-attribution">
+              <span aria-hidden="true" />
+              <p>
                 Artisan Curator
               </p>
             </div>

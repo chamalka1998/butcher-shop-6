@@ -30,7 +30,7 @@ export function CartTimerModal({
     if (!open) return null
 
     return createPortal(
-        <div className="cart-freshness-overlay fixed inset-0 z-[99999] flex items-center justify-center bg-background/80 px-4 py-6 backdrop-blur-sm">
+        <div className="cart-freshness-overlay pointer-events-auto fixed inset-0 z-[99999] flex items-center justify-center bg-background/80 px-4 py-6 backdrop-blur-sm">
             <div className="cart-freshness-modal w-full max-w-[560px] border border-border bg-card px-10 py-12 text-center text-card-foreground shadow-2xl">
                 <div className="cart-freshness-icon mx-auto flex h-16 w-16 items-center justify-center rounded-full">
                     <Hourglass size={34} />

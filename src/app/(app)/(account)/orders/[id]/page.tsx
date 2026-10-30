@@ -16,6 +16,7 @@ import { OrderStatus } from '@/components/OrderStatus'
 import { AddressItem } from '@/components/addresses/AddressItem'
 import { getPurchaseUnitPriceInCents } from '@/utilities/purchasePricing'
 import { batchResolveOrderLinesForPricing } from '@/utilities/resolveOrderLinePricingDocs'
+import './order-detail.css'
 
 export const dynamic = 'force-dynamic'
 
@@ -182,7 +183,7 @@ export default async function Order({ params, searchParams }: PageProps) {
 
 
   return (
-    <div className="min-h-screen px-6 py-10 text-foreground">
+    <main className="order-detail-page">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 flex items-center justify-between gap-8">
           {user ? (
@@ -374,7 +375,7 @@ export default async function Order({ params, searchParams }: PageProps) {
           </aside>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 

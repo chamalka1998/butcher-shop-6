@@ -9,6 +9,7 @@ import { getPayload } from 'payload'
 
 import { CreateAccountForm } from '@/components/forms/CreateAccountForm'
 import { redirect } from 'next/navigation'
+import '../auth-pages.css'
 
 export default async function CreateAccount() {
   const headers = await getHeaders()
@@ -20,15 +21,26 @@ export default async function CreateAccount() {
   }
 
   return (
-    <div className="min-h-screen text-[#eee6d8]"  style={{margin: "80px 40px 80px 40px"}}>
-      <div className="container flex min-h-screen items-center justify-end py-16">
-        <div className="w-full max-w-md">
-          <h1 className="text-xl mb-4 font-medium text-[#eee6d8]">Create Account</h1>
-          <RenderParams />
-          <CreateAccountForm />
+    <main className="auth-page-shell">
+      <div className="auth-split-layout">
+        <div className="auth-visual-panel">
+          <p className="auth-visual-kicker">The Butcher&apos;s Craft</p>
+          <p className="auth-visual-copy">A better table begins with a better cut.</p>
         </div>
+
+        <section className="auth-card">
+          <div className="auth-heading">
+            <p className="auth-eyebrow">Join our table</p>
+            <h1>Create your account</h1>
+            <p>Save your details and keep your orders close at hand.</p>
+          </div>
+          <div className="auth-form-content">
+            <RenderParams />
+            <CreateAccountForm />
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }
 

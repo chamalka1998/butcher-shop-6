@@ -4,10 +4,11 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import React from 'react'
 
 import { LogoutPage } from './LogoutPage'
+import '../auth-pages.css'
 
 export default async function Logout() {
   return (
-    <div className="container max-w-lg my-16">
+    <div className="logout-page-shell">
       <LogoutPage />
     </div>
   )

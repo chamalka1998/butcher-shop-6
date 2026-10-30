@@ -6,6 +6,7 @@ import { FindOrderForm } from '@/components/forms/FindOrderForm'
 import { getPayload } from 'payload'
 import { headers as getHeaders } from 'next/headers.js'
 import configPromise from '@payload-config'
+import './find-order.css'
 
 export default async function FindOrderPage() {
   const headers = await getHeaders()
@@ -13,9 +14,9 @@ export default async function FindOrderPage() {
   const { user } = await payload.auth({ headers })
 
   return (
-    <div className="container py-16">
+    <main className="find-order-page">
       <FindOrderForm initialEmail={user?.email} />
-    </div>
+    </main>
   )
 }
 

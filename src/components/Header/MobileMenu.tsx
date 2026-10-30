@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function MobileMenu({ menu }: Props) {
-  const { user } = useAuth()
+  const { status, user } = useAuth()
 
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -73,9 +73,10 @@ export function MobileMenu({ menu }: Props) {
           ) : null}
         </div>
 
-        {user ? (
+        {status === 'loggedIn' && user ? (
           <div className="mt-4">
-            <h2 className="text-xl mb-4">My account</h2>
+            <h2 className="mb-1 text-xl">My account</h2>
+            <p className="mb-4 text-sm text-muted-foreground">{user.name || user.email}</p>
             <hr className="my-2" />
             <ul className="flex flex-col gap-2">
               <li>
@@ -94,7 +95,7 @@ export function MobileMenu({ menu }: Props) {
               </li>
             </ul>
           </div>
-        ) : (
+        ) : status === 'loggedOut' ? (
           <div>
             <h2 className="text-xl mb-4">My account</h2>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -107,7 +108,7 @@ export function MobileMenu({ menu }: Props) {
               </Button>
             </div>
           </div>
-        )}
+        ) : null}
       </SheetContent>
     </Sheet>
   )

@@ -31,7 +31,7 @@ export const LuxuryProductCard: React.FC<Props> = ({ product }) => {
   const originText = product.origin ? originLabels[product.origin] || product.origin : ''
 
   return (
-    <article className="overflow-hidden border border-[#1f1f1f] bg-[#0a0a0a] text-white transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#c8a24d]/50 hover:shadow-2xl">
+    <article className="luxury-product-card overflow-hidden border border-[#1f1f1f] bg-[#0a0a0a] text-white transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#c8a24d]/50 hover:shadow-2xl">
       <Link className="group block h-full w-full" href={`/products/${product.slug}`}>
         <div className="relative">
           {product.shopCardLabel ? (

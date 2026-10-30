@@ -23,59 +23,29 @@ export const LogoutPage: React.FC = () => {
   }, [logout])
 
   return (
-    <main className="relative min-h-screen overflow-hidden   text-white">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-55"
-        style={{
-          backgroundImage: `url('/images/butcher-bg.jpg')`,
-        }}
-      />
-
-      <div className="absolute inset-0  " />
- 
-
-      <section className="relative z-10 flex min-h-[calc(100vh-160px)] items-center px-12">
-        {(error || success) && (
-          <div className="max-w-xl">
-            <div className="mb-8 inline-flex items-center gap-3 rounded-lg border border-yellow-600/40 bg-yellow-900/20 px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-yellow-500">
-              
-               {error || success}
-            </div>
-
-            <h1 className="mb-6 text-lg font-medium text-white/90">
-          
-            </h1>
-
-            <p className="mb-10 max-w-md text-lg leading-relaxed text-white/75">
-              What would you like to do next? Return to our collections or
-              access your account.
-            </p>
-
-            <div className="flex items-center gap-8">
-              <Link
-                href="/search"
-                className="bg-yellow-500 px-10 py-5 text-sm font-medium uppercase tracking-[0.35em] text-black transition hover:bg-yellow-400"
-              >
-                Click here to shop
-              </Link>
-
-              <Link
-                href="/login"
-                className="group text-base text-white/90"
-              >
-                To log back in, click here
-                <span className="ml-3 transition group-hover:translate-x-1">
-                  →
-                </span>
-              </Link>
-            </div>
-
-           
-          </div>
-        )}
+    <main aria-live="polite" className="logout-page">
+      <section className="logout-card">
+        <p className={`logout-status ${error ? 'logout-status-error' : success ? 'logout-status-success' : 'logout-status-pending'}`}>
+          {error || success || 'Signing you out...'}
+        </p>
+        <p className="auth-eyebrow">The Butcher&apos;s Craft · Your account</p>
+        <h1>{error ? 'You’re already signed out.' : success ? 'Until next time.' : 'Signing out'}</h1>
+        <p className="logout-description">
+          {error
+            ? 'Your account session has already ended. You can sign in again or continue browsing our shop.'
+            : success
+              ? 'You have been securely signed out. Thank you for stopping by.'
+              : 'Your account session is being securely closed.'}
+        </p>
+        <div className="logout-actions">
+          <Link href="/search" className="logout-shop-link">
+            Click here to shop
+          </Link>
+          <Link href="/login" className="logout-login-link">
+            To log back in, click here <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </section>
-
-        
     </main>
   )
 }
