@@ -73,6 +73,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    tenants: Tenant;
     pages: Page;
     categories: Category;
     media: Media;
@@ -94,7 +95,12 @@ export interface Config {
     'branch-inventory': BranchInventory;
     'fulfillment-schedules': FulfillmentSchedule;
     'branch-holidays': BranchHoliday;
+    'pos-connections': PosConnection;
+    'pos-maps': PosMap;
+    'pos-jobs': PosJob;
+    'pos-tags': PosTag;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -114,6 +120,7 @@ export interface Config {
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -135,7 +142,12 @@ export interface Config {
     'branch-inventory': BranchInventorySelect<false> | BranchInventorySelect<true>;
     'fulfillment-schedules': FulfillmentSchedulesSelect<false> | FulfillmentSchedulesSelect<true>;
     'branch-holidays': BranchHolidaysSelect<false> | BranchHolidaysSelect<true>;
+    'pos-connections': PosConnectionsSelect<false> | PosConnectionsSelect<true>;
+    'pos-maps': PosMapsSelect<false> | PosMapsSelect<true>;
+    'pos-jobs': PosJobsSelect<false> | PosJobsSelect<true>;
+    'pos-tags': PosTagsSelect<false> | PosTagsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -164,7 +176,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      runPosJob: TaskRunPosJob;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
   /**
@@ -209,7 +227,7 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name?: string | null;
-  roles?: ('admin' | 'customer')[] | null;
+  roles?: ('admin' | 'shop-owner' | 'shop-staff' | 'customer')[] | null;
   orders?: {
     docs?: (number | Order)[];
     hasNextPage?: boolean;
@@ -225,6 +243,12 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  tenants?:
+    | {
+        tenant: number | Tenant;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -250,6 +274,7 @@ export interface User {
  */
 export interface Order {
   id: number;
+  tenant?: (number | null) | Tenant;
   items?:
     | {
         product?: (number | null) | Product;
@@ -301,6 +326,36 @@ export interface Order {
     shippingCharge?: number | null;
     notes?: string | null;
   };
+  lightspeedSale?: {
+    /**
+     * Sent to Lightspeed as the sale QR code.
+     */
+    pickupUrl?: string | null;
+    deliveryTaskId?: string | null;
+    deliveryProof?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * One butcher business. Branches are locations of a tenant, not tenants themselves.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Optional hostname for this shop, such as shop-a.example.com. Unused until host routing is turned on.
+   */
+  domain?: string | null;
+  /**
+   * Standalone stock lives in this app. Lightspeed X-Series uses a POS connection: this app still counts stock, and Lightspeed receives the catalog and the paid sale.
+   */
+  inventoryMode: 'standalone' | 'lightspeed-x';
+  status: 'active' | 'inactive';
   updatedAt: string;
   createdAt: string;
 }
@@ -310,6 +365,7 @@ export interface Order {
  */
 export interface Product {
   id: number;
+  tenant?: (number | null) | Tenant;
   enableVariants?: boolean | null;
   variantTypes?: (number | VariantType)[] | null;
   variants?: {
@@ -387,6 +443,52 @@ export interface Product {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Created from Lightspeed as a draft. Set the cut, aging, and origin, then publish.
+   */
+  importedFromPos?: boolean | null;
+  nameFr?: string | null;
+  descriptionFr?: string | null;
+  posCategory?: (number | null) | Category;
+  posTags?: (number | PosTag)[] | null;
+  /**
+   * Last image URL copied from Lightspeed.
+   */
+  lightspeedImageUrl?: string | null;
+  /**
+   * Active flag from Lightspeed. This does not publish the product.
+   */
+  lightspeedActive?: boolean | null;
+  enableSubscription?: boolean | null;
+  subscriptionDiscount?: number | null;
+  visibilityDate?: string | null;
+  visibilityEndDate?: string | null;
+  maxBoxesPerDay?: number | null;
+  /**
+   * Whole number stored in Lightspeed.
+   */
+  priceMonthlyMenuDelivery?: number | null;
+  priceSubscriptionDelivery?: number | null;
+  priceMonthlyMenuPickup?: number | null;
+  priceSubscriptionPickup?: number | null;
+  descriptionMonthlyMenuDeliveryEn?: string | null;
+  descriptionSubscriptionDeliveryEn?: string | null;
+  descriptionMonthlyMenuPickupEn?: string | null;
+  descriptionSubscriptionPickupEn?: string | null;
+  descriptionMonthlyMenuDeliveryFr?: string | null;
+  descriptionSubscriptionDeliveryFr?: string | null;
+  descriptionMonthlyMenuPickupFr?: string | null;
+  descriptionSubscriptionPickupFr?: string | null;
+  /**
+   * Remaining boxes for each day of the month. Saving sends these back to Lightspeed.
+   */
+  onHandBoxDays?:
+    | {
+        day: number;
+        count: number;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -398,6 +500,7 @@ export interface Product {
  */
 export interface VariantType {
   id: number;
+  tenant?: (number | null) | Tenant;
   label: string;
   name: string;
   options?: {
@@ -416,6 +519,7 @@ export interface VariantType {
 export interface VariantOption {
   id: number;
   _variantOptions_options_order?: string | null;
+  tenant?: (number | null) | Tenant;
   variantType: number | VariantType;
   label: string;
   /**
@@ -432,6 +536,7 @@ export interface VariantOption {
  */
 export interface Variant {
   id: number;
+  tenant?: (number | null) | Tenant;
   /**
    * Used for administrative purposes, not shown to customers. This is populated by default.
    */
@@ -452,6 +557,7 @@ export interface Variant {
  */
 export interface Media {
   id: number;
+  tenant?: (number | null) | Tenant;
   alt: string;
   caption?: {
     root: {
@@ -482,10 +588,45 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Lightspeed tags for one shop. Catalog sync creates these and attaches them to the product.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-tags".
+ */
+export interface PosTag {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "transactions".
  */
 export interface Transaction {
   id: number;
+  tenant?: (number | null) | Tenant;
   items?:
     | {
         product?: (number | null) | Product;
@@ -528,6 +669,7 @@ export interface Transaction {
  */
 export interface Cart {
   id: number;
+  tenant?: (number | null) | Tenant;
   items?:
     | {
         product?: (number | null) | Product;
@@ -551,6 +693,7 @@ export interface Cart {
  */
 export interface Branch {
   id: number;
+  tenant?: (number | null) | Tenant;
   name: string;
   code: string;
   address?: string | null;
@@ -579,6 +722,7 @@ export interface Branch {
  */
 export interface Address {
   id: number;
+  tenant?: (number | null) | Tenant;
   customer?: (number | null) | User;
   title?: string | null;
   firstName?: string | null;
@@ -640,6 +784,7 @@ export interface Address {
  */
 export interface Page {
   id: number;
+  tenant?: (number | null) | Tenant;
   title: string;
   publishedOn?: string | null;
   hero: {
@@ -850,21 +995,6 @@ export interface ArchiveBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'archive';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1375,6 +1505,7 @@ export interface FormSubmission {
  */
 export interface BranchInventory {
   id: number;
+  tenant?: (number | null) | Tenant;
   branch: number | Branch;
   product: number | Product;
   sku?: string | null;
@@ -1399,6 +1530,7 @@ export interface BranchInventory {
  */
 export interface FulfillmentSchedule {
   id: number;
+  tenant?: (number | null) | Tenant;
   name: string;
   branch: (number | Branch)[];
   /**
@@ -1448,11 +1580,110 @@ export interface FulfillmentSchedule {
  */
 export interface BranchHoliday {
   id: number;
+  tenant?: (number | null) | Tenant;
   title: string;
   branch: number | Branch;
   date: string;
   serviceTypes?: ('pickup' | 'delivery')[] | null;
   message?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Lightspeed X-Series for one shop. The token is saved encrypted and is not shown again.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-connections".
+ */
+export interface PosConnection {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  provider: 'lightspeed-x';
+  /**
+   * The name in {name}.retail.lightspeed.app. For Filet Gourmet this was filetgourmet.
+   */
+  storePrefix: string;
+  /**
+   * Personal token. Leave blank to keep the saved token. Paste a new token to replace it.
+   */
+  accessToken?: string | null;
+  /**
+   * A token is saved.
+   */
+  hasAccessToken?: boolean | null;
+  /**
+   * Shared secret for x-pos-signature on /api/pos/lightspeed/webhook. Leave blank to keep the saved secret.
+   */
+  webhookSecret?: string | null;
+  hasWebhookSecret?: boolean | null;
+  /**
+   * Lightspeed user id for the cashier on web sales.
+   */
+  cashierId?: string | null;
+  /**
+   * Lightspeed tax id. Filet Gourmet used the tax named No Tax.
+   */
+  taxId?: string | null;
+  /**
+   * Lightspeed payment type id. Filet Gourmet used Online Payments.
+   */
+  paymentTypeId?: string | null;
+  /**
+   * Local branch these sales belong to. Stock stays on this branch.
+   */
+  branch?: (number | null) | Branch;
+  status: 'disconnected' | 'ready';
+  /**
+   * Save to pull Lightspeed products. Online Visibility products are created as drafts.
+   */
+  runCatalogSync?: boolean | null;
+  /**
+   * Set while a large catalog still has pages left.
+   */
+  catalogCursor?: string | null;
+  lastCatalogSyncAt?: string | null;
+  lastError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Pairs a product, customer, or order in this shop with its Lightspeed id.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-maps".
+ */
+export interface PosMap {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  entity: 'product' | 'customer' | 'order' | 'category' | 'tag';
+  localId: string;
+  externalId: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Work waiting for the Lightspeed worker. A paid order queues pushSale. Replay does not create a second sale.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-jobs".
+ */
+export interface PosJob {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  type: 'pullCatalog' | 'pushSale' | 'pullSaleStatus' | 'pushFulfillment' | 'pushProductFields' | 'pullCustomer';
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+  idempotencyKey: string;
+  jobPayload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  attempts?: number | null;
+  lastError?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1475,6 +1706,98 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'runPosJob';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'runPosJob') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -1483,6 +1806,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: number | Tenant;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1567,6 +1894,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'branch-holidays';
         value: number | BranchHoliday;
+      } | null)
+    | ({
+        relationTo: 'pos-connections';
+        value: number | PosConnection;
+      } | null)
+    | ({
+        relationTo: 'pos-maps';
+        value: number | PosMap;
+      } | null)
+    | ({
+        relationTo: 'pos-jobs';
+        value: number | PosJob;
+      } | null)
+    | ({
+        relationTo: 'pos-tags';
+        value: number | PosTag;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1620,6 +1963,12 @@ export interface UsersSelect<T extends boolean = true> {
   orders?: T;
   cart?: T;
   addresses?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1639,9 +1988,23 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  domain?: T;
+  inventoryMode?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   publishedOn?: T;
   hero?:
@@ -1989,6 +2352,7 @@ export interface ContactPageBlockSelect<T extends boolean = true> {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   generateSlug?: T;
   slug?: T;
@@ -2000,6 +2364,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
   alt?: T;
   caption?: T;
   updatedAt?: T;
@@ -2208,6 +2573,7 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
  * via the `definition` "addresses_select".
  */
 export interface AddressesSelect<T extends boolean = true> {
+  tenant?: T;
   customer?: T;
   title?: T;
   firstName?: T;
@@ -2228,6 +2594,7 @@ export interface AddressesSelect<T extends boolean = true> {
  * via the `definition` "variants_select".
  */
 export interface VariantsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   product?: T;
   options?: T;
@@ -2244,6 +2611,7 @@ export interface VariantsSelect<T extends boolean = true> {
  * via the `definition` "variantTypes_select".
  */
 export interface VariantTypesSelect<T extends boolean = true> {
+  tenant?: T;
   label?: T;
   name?: T;
   options?: T;
@@ -2257,6 +2625,7 @@ export interface VariantTypesSelect<T extends boolean = true> {
  */
 export interface VariantOptionsSelect<T extends boolean = true> {
   _variantOptions_options_order?: T;
+  tenant?: T;
   variantType?: T;
   label?: T;
   value?: T;
@@ -2269,6 +2638,7 @@ export interface VariantOptionsSelect<T extends boolean = true> {
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
+  tenant?: T;
   enableVariants?: T;
   variantTypes?: T;
   variants?: T;
@@ -2347,6 +2717,37 @@ export interface ProductsSelect<T extends boolean = true> {
         rating?: T;
         id?: T;
       };
+  importedFromPos?: T;
+  nameFr?: T;
+  descriptionFr?: T;
+  posCategory?: T;
+  posTags?: T;
+  lightspeedImageUrl?: T;
+  lightspeedActive?: T;
+  enableSubscription?: T;
+  subscriptionDiscount?: T;
+  visibilityDate?: T;
+  visibilityEndDate?: T;
+  maxBoxesPerDay?: T;
+  priceMonthlyMenuDelivery?: T;
+  priceSubscriptionDelivery?: T;
+  priceMonthlyMenuPickup?: T;
+  priceSubscriptionPickup?: T;
+  descriptionMonthlyMenuDeliveryEn?: T;
+  descriptionSubscriptionDeliveryEn?: T;
+  descriptionMonthlyMenuPickupEn?: T;
+  descriptionSubscriptionPickupEn?: T;
+  descriptionMonthlyMenuDeliveryFr?: T;
+  descriptionSubscriptionDeliveryFr?: T;
+  descriptionMonthlyMenuPickupFr?: T;
+  descriptionSubscriptionPickupFr?: T;
+  onHandBoxDays?:
+    | T
+    | {
+        day?: T;
+        count?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -2357,6 +2758,7 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "carts_select".
  */
 export interface CartsSelect<T extends boolean = true> {
+  tenant?: T;
   items?:
     | T
     | {
@@ -2379,6 +2781,7 @@ export interface CartsSelect<T extends boolean = true> {
  * via the `definition` "orders_select".
  */
 export interface OrdersSelect<T extends boolean = true> {
+  tenant?: T;
   items?:
     | T
     | {
@@ -2431,6 +2834,13 @@ export interface OrdersSelect<T extends boolean = true> {
         shippingCharge?: T;
         notes?: T;
       };
+  lightspeedSale?:
+    | T
+    | {
+        pickupUrl?: T;
+        deliveryTaskId?: T;
+        deliveryProof?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2439,6 +2849,7 @@ export interface OrdersSelect<T extends boolean = true> {
  * via the `definition` "transactions_select".
  */
 export interface TransactionsSelect<T extends boolean = true> {
+  tenant?: T;
   items?:
     | T
     | {
@@ -2484,6 +2895,7 @@ export interface TransactionsSelect<T extends boolean = true> {
  * via the `definition` "branches_select".
  */
 export interface BranchesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   code?: T;
   address?: T;
@@ -2500,6 +2912,7 @@ export interface BranchesSelect<T extends boolean = true> {
  * via the `definition` "branch-inventory_select".
  */
 export interface BranchInventorySelect<T extends boolean = true> {
+  tenant?: T;
   branch?: T;
   product?: T;
   sku?: T;
@@ -2517,6 +2930,7 @@ export interface BranchInventorySelect<T extends boolean = true> {
  * via the `definition` "fulfillment-schedules_select".
  */
 export interface FulfillmentSchedulesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   branch?: T;
   serviceType?: T;
@@ -2550,6 +2964,7 @@ export interface FulfillmentSchedulesSelect<T extends boolean = true> {
  * via the `definition` "branch-holidays_select".
  */
 export interface BranchHolidaysSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   branch?: T;
   date?: T;
@@ -2560,11 +2975,105 @@ export interface BranchHolidaysSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-connections_select".
+ */
+export interface PosConnectionsSelect<T extends boolean = true> {
+  tenant?: T;
+  provider?: T;
+  storePrefix?: T;
+  accessToken?: T;
+  hasAccessToken?: T;
+  webhookSecret?: T;
+  hasWebhookSecret?: T;
+  cashierId?: T;
+  taxId?: T;
+  paymentTypeId?: T;
+  branch?: T;
+  status?: T;
+  runCatalogSync?: T;
+  catalogCursor?: T;
+  lastCatalogSyncAt?: T;
+  lastError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-maps_select".
+ */
+export interface PosMapsSelect<T extends boolean = true> {
+  tenant?: T;
+  entity?: T;
+  localId?: T;
+  externalId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-jobs_select".
+ */
+export interface PosJobsSelect<T extends boolean = true> {
+  tenant?: T;
+  type?: T;
+  status?: T;
+  idempotencyKey?: T;
+  jobPayload?: T;
+  attempts?: T;
+  lastError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pos-tags_select".
+ */
+export interface PosTagsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2868,6 +3377,18 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRunPosJob".
+ */
+export interface TaskRunPosJob {
+  input: {
+    posJobId: string;
+  };
+  output: {
+    ok: boolean;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

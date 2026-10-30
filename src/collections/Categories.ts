@@ -2,9 +2,11 @@ import { slugField } from 'payload'
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
+import { tenantSlugIndex } from '@/tenancy/constants'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
+  indexes: [tenantSlugIndex],
   access: {
     create: adminOnly,
     delete: adminOnly,
@@ -22,6 +24,7 @@ export const Categories: CollectionConfig = {
       required: true,
     },
     slugField({
+      disableUnique: true,
       position: undefined,
     }),
   ],

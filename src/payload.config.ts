@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url'
 import { Categories } from '@/collections/Categories'
 import { Media } from '@/collections/Media'
 import { Pages } from '@/collections/Pages/index'
+import { Tenants } from '@/collections/Tenants'
 import { Users } from '@/collections/Users'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
@@ -29,6 +30,9 @@ import { Qualities } from './collections/ProductCategories/Qualities'
 import { CartSettings } from './globals/CartSettings'
 import { ShopLuxuryPage } from './globals/ShopLuxuryPage'
 import { plugins } from './plugins'
+import { runPosJobTask } from './pos/task'
+import { ensureDefaultTenant } from './tenancy/ensureDefaultTenant'
+import { isPlatformAdmin } from './tenancy/roles'
 
 
 const filename = fileURLToPath(import.meta.url)
@@ -69,6 +73,7 @@ export default buildConfig({
   },
   collections: [
     Users,
+    Tenants,
     Pages,
     Categories,
     Media,
@@ -125,7 +130,23 @@ export default buildConfig({
   }),
   //email: nodemailerAdapter(),
   endpoints: [],
+  jobs: {
+    access: {
+      run: ({ req }) => {
+        const secret = process.env.CRON_SECRET
+        const authorization = req.headers.get('authorization')
+        if (secret && authorization === `Bearer ${secret}`) return true
+        return isPlatformAdmin(req.user)
+      },
+    },
+    autoRun: [{ cron: '* * * * *', limit: 10, queue: 'pos' }],
+    deleteJobOnComplete: true,
+    tasks: [runPosJobTask],
+  },
   globals: [Header, Footer, ShopPage, ShopLuxuryPage, CartSettings],
+  onInit: async (payload) => {
+    await ensureDefaultTenant(payload)
+  },
   plugins,
   secret: resolvePayloadSecret(),
   typescript: {

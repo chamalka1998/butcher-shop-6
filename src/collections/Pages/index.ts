@@ -20,6 +20,8 @@ import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { ProductGrid } from '@/blocks/ProductGrid/config'
 import { hero } from '@/fields/hero'
 import { slugField } from 'payload'
+
+import { tenantSlugIndex } from '@/tenancy/constants'
 import { adminOrPublishedStatus } from '@/access/adminOrPublishedStatus'
 import {
   MetaDescriptionField,
@@ -33,6 +35,7 @@ import { ContactPage } from '@/blocks/ContactPage/config'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  indexes: [tenantSlugIndex],
   access: {
     create: adminOnly,
     delete: adminOnly,
@@ -145,7 +148,7 @@ export const Pages: CollectionConfig = {
         },
       ],
     },
-    slugField(),
+    slugField({ disableUnique: true }),
   ],
   hooks: {
     afterChange: [revalidatePage],

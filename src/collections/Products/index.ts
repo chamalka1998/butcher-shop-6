@@ -1,9 +1,12 @@
 import { slugField } from 'payload'
+
+import { tenantSlugIndex } from '@/tenancy/constants'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { CollectionOverride } from '@payloadcms/plugin-ecommerce/types'
 
 export const ProductsCollection: CollectionOverride = ({ defaultCollection }) => ({
   ...defaultCollection,
+  indexes: [...(defaultCollection.indexes || []), tenantSlugIndex],
   admin: {
     ...defaultCollection?.admin,
     defaultColumns: [
@@ -64,6 +67,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
     },
 
     slugField({
+      disableUnique: true,
       fieldToUse: 'title',
     }),
 

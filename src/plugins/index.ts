@@ -19,6 +19,8 @@ import {
 import { s3Storage } from "@payloadcms/storage-s3";
 import type { Plugin } from "payload";
 import multiLocationPlugin from "./payload-multi-location-plugin/src";
+import { posPlugin } from "./pos";
+import { tenantPlugins } from "@/tenancy/plugin";
 
 const generateTitle: GenerateTitle<Product | Page> = ({ doc }) => {
 	return doc?.title
@@ -202,4 +204,6 @@ export const plugins: Plugin[] = [
 		orderSlug: "orders",
 		adminGroup: "Shop",
 	}),
+	posPlugin,
+	...tenantPlugins,
 ];

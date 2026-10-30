@@ -3,6 +3,12 @@ import { adminOnly, publicRead } from '../utilities/access'
 
 export const createBranchesCollection = (adminGroup = 'Shop'): CollectionConfig => ({
   slug: 'branches',
+  indexes: [
+    {
+      fields: ['tenant', 'code'],
+      unique: true,
+    },
+  ],
   admin: {
     useAsTitle: 'name',
     group: adminGroup,
@@ -16,7 +22,7 @@ export const createBranchesCollection = (adminGroup = 'Shop'): CollectionConfig 
   },
   fields: [
     { name: 'name', type: 'text', required: true },
-    { name: 'code', type: 'text', unique: true, index: true, required: true },
+    { name: 'code', type: 'text', index: true, required: true },
     { name: 'address', type: 'textarea' },
     { name: 'phone', type: 'text' },
     { name: 'email', type: 'email' },

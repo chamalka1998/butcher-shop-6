@@ -50,6 +50,14 @@ export const Users: CollectionConfig = {
           value: 'admin',
         },
         {
+          label: 'shop-owner',
+          value: 'shop-owner',
+        },
+        {
+          label: 'shop-staff',
+          value: 'shop-staff',
+        },
+        {
           label: 'customer',
           value: 'customer',
         },
